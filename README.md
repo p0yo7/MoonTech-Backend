@@ -36,22 +36,6 @@ cd MoonTech
 4. Ejecuta el proyecto:
 [Especificar el comando para iniciar la aplicación, por ejemplo, npm start, python manage.py runserver, etc.]
 
-## Instalación
-
-Sigue estos pasos para instalar y ejecutar el prototipo en tu entorno local:
-
-```bash
-# Clona este repositorio
-git clone https://github.com/tuusuario/MoonTech.git
-
-# Navega al directorio del proyecto
-cd MoonTech
-
-# Instala las dependencias
-[Especificar el comando, por ejemplo, npm install, pip install -r requirements.txt, etc.]
-
-# Ejecuta el proyecto
-[Especificar el comando para iniciar la aplicación, por ejemplo, npm start, python manage.py runserver, etc.]
 
 ## Uso
 
