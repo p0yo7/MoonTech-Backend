@@ -4,7 +4,7 @@
 
 ## Descripción
 
-El prototipo de software de **MoonTech** es una herramienta diseñada para facilitar la administración de proyectos, enfocándose en la organización y generación rápida de propuestas. Este proyecto es parte de una iniciativa educativa desarrollada para Neoris, con el objetivo de optimizar sus procesos de gestión de proyectos.
+El prototipo de software de **MoonTech** es una herramienta diseñada para facilitar la administración de proyectos, enfocándose en la organización y generación rápida de propuestas. Este proyecto es parte de una iniciativa educativa desarrollada para NEORIS, con el objetivo de optimizar sus procesos de gestión de proyectos.
 
 ## Características
 
