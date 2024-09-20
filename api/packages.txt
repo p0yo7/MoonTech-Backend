@@ -2,3 +2,9 @@ github.com/gin-gonic/gin
 gorm.io/gorm
 gorm.io/driver/mysql
 github.com/joho/godotenv
+golang.org/x/oauth2
+golang.org/x/oauth2/google
+golang.org/x/oauth2/microsoft
+github.com/gorilla/sessions
+golang.org/x/crypto/bcrypt
+github.com/lib/pq

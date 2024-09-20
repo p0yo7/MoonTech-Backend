@@ -1,4 +1,3 @@
-// routers.go
 package main
 
 import (
@@ -11,6 +10,9 @@ func SetupRouter() *gin.Engine {
 
     r.GET("/users", GetUsers)
     r.POST("/users", CreateUser)
+
+    // Registrar las rutas de autenticación
+    RegisterAuthRoutes(r)
 
     return r
 }
