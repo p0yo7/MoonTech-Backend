@@ -9,6 +9,9 @@ import (
     "github.com/gorilla/sessions"
     "golang.org/x/crypto/bcrypt"
     "gorm.io/gorm"
+    "time"
+    "github.com/golang-jwt/jwt/v4"
+    "fmt"
 )
 
 var (
@@ -59,10 +62,34 @@ func microsoftCallbackHandler(c *gin.Context) {
     handleCallback(microsoftOAuth2Config, c)
 }
 
+// Estructura para el token
+type Claims struct {
+    UserID uint   `json:"user_id"`
+    Role   string `json:"role"`
+    jwt.RegisteredClaims
+}
+
+// Función para generar un JWT
+func generateJWT(userID uint, role string) (string, error) {
+    expirationTime := time.Now().Add(24 * time.Hour) // Define el tiempo de expiración del token
+
+    claims := &Claims{
+        UserID: userID,
+        Role:   role,
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+        },
+    }
+
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    secret := []byte("your_secret_key") // Cambia esto por una clave secreta segura
+    return token.SignedString(secret)
+}
+
 func native_login(c *gin.Context) {
     var loginData struct {
-        WorkEmail string `json:"workEmail"`
-        Password  string `json:"password"`
+        Username string `json:"username"` // Cambiado a Username y exportado
+        Password string `json:"password"` // Cambiado para ser exportado
     }
 
     if err := c.ShouldBindJSON(&loginData); err != nil {
@@ -71,10 +98,10 @@ func native_login(c *gin.Context) {
     }
 
     var user User
-    result := DB.Where("work_email = ?", loginData.WorkEmail).First(&user)
+    result := DB.Where("username = ?", loginData.Username).First(&user) // Cambiado a loginData.Username
     if result.Error != nil {
         if result.Error == gorm.ErrRecordNotFound {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"}) // Mensaje actualizado
         } else {
             c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
         }
@@ -82,18 +109,22 @@ func native_login(c *gin.Context) {
     }
 
     if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginData.Password)); err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+        fmt.Println(err)
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"}) // Mensaje actualizado
         return
     }
 
-    session, _ := store.Get(c.Request, "session")
-    session.Values["user_id"] = user.ID
-    session.Save(c.Request, c.Writer)
+    // Generar el token JWT
+    token, err := generateJWT(user.ID, user.Role)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+        return
+    }
 
-    // Remove the password before sending the user data
+    // Remover la contraseña antes de enviar los datos del usuario
     user.Password = ""
 
-    c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": user})
+    c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
 
 func register(c *gin.Context) {
@@ -103,13 +134,25 @@ func register(c *gin.Context) {
         return
     }
 
+    // Verificar si el usuario ya existe
+    var existingUser User
+    if err := DB.Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
+        // Si no se encuentra un error, significa que el usuario ya existe
+        fmt.Println("duplicate user found")
+        c.JSON(http.StatusConflict, gin.H{"error": "Duplicate user found"})
+        return
+    }
+
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    fmt.Println(hashedPassword)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
         return
     }
+
     user.Password = string(hashedPassword)
 
+    // Crear el nuevo usuario
     result := DB.Create(&user)
     if result.Error != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -118,6 +161,7 @@ func register(c *gin.Context) {
 
     c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
+
 
 func RegisterAuthRoutes(r *gin.Engine) {
     r.GET("/login/google", loginWithGoogleHandler)

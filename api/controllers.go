@@ -7,15 +7,6 @@ import (
     "fmt"
 )
 
-// GetUsers maneja la solicitud GET para obtener usuarios
-func GetUsers(c *gin.Context) {
-    var users []User
-    if err := DB.Find(&users).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(http.StatusOK, users)
-}
 
 // CreateUser maneja la solicitud POST para crear un nuevo usuario
 func CreateUser(c *gin.Context) {
@@ -29,27 +20,47 @@ func CreateUser(c *gin.Context) {
     c.JSON(http.StatusCreated, user)
 }
 
-func CreateProject(c *gin.Context){
+
+func CreateProject(c *gin.Context) {
+    // Validar los headers y obtener los claims
+    claims, err := ValidateHeaders(c)
+    if err != nil {
+        return // Ya se manejó el error dentro de ValidateHeaders
+    }
+
+    // Crear un nuevo proyecto
     var proj Project
     if err := c.ShouldBindJSON(&proj); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+
+    // Asignar el ID de usuario del JWT al campo Owner del proyecto
+    proj.owner = int(claims.UserID)
+
+    // Guardar el proyecto en la base de datos
     result := DB.Create(&proj)
     if result.Error != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
         fmt.Println(result.Error)
         return
     }
+
     c.JSON(http.StatusCreated, gin.H{"message": "Project created successfully"})
 }
 
 func CreateRequirement(c *gin.Context){
+    claims, err := ValidateHeaders(c)
+    if err != nil {
+        return
+    }
+
     var req Requirements
     if err := c.ShouldBindJSON(&req); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+    req.owner = int(claims.UserID)
     result := DB.Create(&req)
     if result.Error != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create requirement"})
