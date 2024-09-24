@@ -12,6 +12,7 @@ import (
     "time"
     "github.com/golang-jwt/jwt/v4"
     "fmt"
+
 )
 
 var (
@@ -128,9 +129,14 @@ func native_login(c *gin.Context) {
 }
 
 func register(c *gin.Context) {
+
     var user User
     if err := c.ShouldBindJSON(&user); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+        return
+    }
+    if (!IsEmail(user.WorkEmail)){
+        c.JSON(http.StatusBadRequest, gin.H{"error":"Invalid email"})
         return
     }
 

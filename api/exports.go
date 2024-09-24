@@ -10,7 +10,7 @@ import (
 )
 
 // isEmail verifica si un string es un email válido
-func isEmail(email string) bool {
+func IsEmail(email string) bool {
 	// Expresión regular para validar emails
 	emailRegex := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
 

@@ -15,7 +15,7 @@ func main() {
     // Configurar las rutas
     r := SetupRouter()
 
-    // Iniciar el servidor en el puerto 5000
+    // Iniciar el servidor en el puerto 8080
     if err := r.Run(":8080"); err != nil {
         log.Fatalf("Failed to run the server: %v", err)
     }

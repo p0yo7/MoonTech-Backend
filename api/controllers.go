@@ -17,7 +17,7 @@ func CreateUser(c *gin.Context) {
     }
 
     DB.Create(&user)
-    c.JSON(http.StatusCreated, user)
+    c.JSON(http.StatusOK, user)
 }
 
 
@@ -46,10 +46,11 @@ func CreateProject(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, gin.H{"message": "Project created successfully"})
+    c.JSON(http.StatusOK, gin.H{"message": "Project created successfully"})
 }
 
 func CreateRequirement(c *gin.Context){
+    // Validar headers y obtener claims
     claims, err := ValidateHeaders(c)
     if err != nil {
         return
@@ -60,12 +61,16 @@ func CreateRequirement(c *gin.Context){
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+
+    // Asignar ID sacado del JWT
     req.owner = int(claims.UserID)
+    
+    // Crear en DB si es successfull
     result := DB.Create(&req)
     if result.Error != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create requirement"})
         fmt.Println(result.Error)
         return
     }
-    c.JSON(http.StatusCreated, gin.H{"message": "Requirement created successfully"})
+    c.JSON(http.StatusOK, gin.H{"message": "Requirement created successfully"})
 }
