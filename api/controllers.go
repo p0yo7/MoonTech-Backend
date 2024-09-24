@@ -4,6 +4,7 @@ package main
 import (
     "net/http"
     "github.com/gin-gonic/gin"
+    "fmt"
 )
 
 // GetUsers maneja la solicitud GET para obtener usuarios
@@ -26,4 +27,34 @@ func CreateUser(c *gin.Context) {
 
     DB.Create(&user)
     c.JSON(http.StatusCreated, user)
+}
+
+func CreateProject(c *gin.Context){
+    var proj Project
+    if err := c.ShouldBindJSON(&proj); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+    result := DB.Create(&proj)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
+        fmt.Println(result.Error)
+        return
+    }
+    c.JSON(http.StatusCreated, gin.H{"message": "Project created successfully"})
+}
+
+func CreateRequirement(c *gin.Context){
+    var req Requirements
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+    result := DB.Create(&req)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create requirement"})
+        fmt.Println(result.Error)
+        return
+    }
+    c.JSON(http.StatusCreated, gin.H{"message": "Requirement created successfully"})
 }

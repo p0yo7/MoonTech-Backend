@@ -1,6 +1,40 @@
 DROP DATABASE IF EXISTS MoonTech;
 CREATE DATABASE MoonTech;
 USE MoonTech;
+
+-- Tabla de tipos de negocio
+CREATE TABLE businessType (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    color VARCHAR(20)
+);
+
+-- Tabla de representantes
+CREATE TABLE Representatives (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR(50),
+    lastname VARCHAR(50),
+    workEmail VARCHAR(100),
+    workPhone VARCHAR(20)
+);
+
+-- Tabla de áreas
+CREATE TABLE Area (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT
+);
+
+-- Tabla de compañías
+CREATE TABLE Companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    representativeId INT, -- Hace referencia a la tabla de Representantes
+    businessType INT, -- Hace referencia a la tabla businessType
+    FOREIGN KEY (representativeId) REFERENCES Representatives(id),
+    FOREIGN KEY (businessType) REFERENCES businessType(id)
+);
+
 -- Tabla de usuarios
 CREATE TABLE User (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,7 +47,9 @@ CREATE TABLE User (
     area INT,
     leaderId INT,
     position VARCHAR(100),
-    role VARCHAR(50)
+    role VARCHAR(50),
+    FOREIGN KEY (area) REFERENCES Area(id),
+    FOREIGN KEY (leaderId) REFERENCES User(id) -- Referencia a sí mismo
 );
 
 -- Tabla de proyectos
@@ -78,37 +114,4 @@ CREATE TABLE Tasks (
     FOREIGN KEY (area) REFERENCES Area(id),
     FOREIGN KEY (createdBy) REFERENCES User(id),
     FOREIGN KEY (approverId) REFERENCES User(id)
-);
-
--- Tabla de compañías
-CREATE TABLE Companies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    representativeId INT, -- Hace referencia a la tabla de Representantes
-    businessType INT, -- Hace referencia a la tabla businessType
-    FOREIGN KEY (representativeId) REFERENCES Representatives(id),
-    FOREIGN KEY (businessType) REFERENCES businessType(id)
-);
-
--- Tabla de tipos de negocio
-CREATE TABLE businessType (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    color VARCHAR(20)
-);
-
--- Tabla de representantes
-CREATE TABLE Representatives (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    firstname VARCHAR(50),
-    lastname VARCHAR(50),
-    workEmail VARCHAR(100),
-    workPhone VARCHAR(20)
-);
-
--- Tabla de áreas
-CREATE TABLE Area (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    description TEXT
 );

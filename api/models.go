@@ -1,9 +1,9 @@
 // models.go
 package main
 
-// import (
-//     "gorm.io/gorm"
-// )
+import (
+    "time"
+)
 
 // User representa la tabla de usuarios
 type User struct {
@@ -23,11 +23,16 @@ type User struct {
 // Project representa la tabla de proyectos
 type Project struct {
     ID        uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-    ProjName  string `gorm:"size:100" json:"projName"`
-    Owner     int    `json:"owner"`  // Hace referencia al userId
-    Company   int    `json:"company"` // Hace referencia a la tabla de Companies
-    Area      int    `json:"area"`   // Hace referencia a la tabla de Areas
-    StartDate string `json:"startDate"` // Tipo DATE
+    projName  string `gorm:"size:100" json:"projName"`
+    owner     int    `json:"owner"`  // Hace referencia al userId
+    company   int    `json:"company"` // Hace referencia a la tabla de Companies
+    area      int    `json:"area"`   // Hace referencia a la tabla de Areas
+    startDate string `json:"startDate"` // Tipo DATE
+}
+
+//Necesario para que gorm no lo traduzca a MoonTech.projects
+func (Project) TableName() string {
+    return "Project"
 }
 
 // Leader representa la tabla de líderes
@@ -39,16 +44,19 @@ type Leader struct {
 }
 
 // Requirement representa la tabla de requerimientos
-type Requirement struct {
-    ID          uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-    ProjectID   int    `json:"projectId"` // Hace referencia a Project
-    Owner       int    `json:"owner"`     // Hace referencia a User
-    Text        string `json:"text"`
-    Timestamp   string `json:"timestamp"` // Tipo DATETIME
-    Approved    bool   `json:"approved"`
-    ApproverID  int    `json:"approverId"` // Hace referencia a User
+type Requirements struct {
+    ID         uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+    projectID  int       `gorm:"column:projectId" json:"projectId"`  // Mapeando a projectId
+    owner      int       `gorm:"column:owner" json:"owner"`
+    text       string    `json:"text"`
+    timestamp  time.Time `json:"timestamp" gorm:"autoCreateTime"`
+    approved   bool      `json:"approved"`
+    approverID int       `gorm:"column:approverId" json:"approverId"` // Mapeando a approverId
 }
-
+//Necesario para que gorm no lo traduzca a MoonTech.requirements
+func (Requirements) TableName() string {
+    return "Requirements"
+}
 // Comment representa la tabla de comentarios
 type Comment struct {
     ID      uint   `gorm:"primaryKey;autoIncrement" json:"id"`
