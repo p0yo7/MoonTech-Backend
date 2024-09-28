@@ -1,3 +1,4 @@
+//auth.go
 package main
 
 import (
@@ -15,6 +16,7 @@ import (
 
 )
 
+// rutas necesarias para hacer manejo de usuario y sus datos
 var (
     microsoftEndpoint = oauth2.Endpoint{
         AuthURL:  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
@@ -87,7 +89,7 @@ func generateJWT(userID uint, role string) (string, error) {
     return token.SignedString(secret)
 }
 
-func native_login(c *gin.Context) {
+func Native_login(c *gin.Context) {
     var loginData struct {
         Username string `json:"username"` // Cambiado a Username y exportado
         Password string `json:"password"` // Cambiado para ser exportado
@@ -128,13 +130,15 @@ func native_login(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
 
-func register(c *gin.Context) {
+func CreateUser(c *gin.Context) {
 
     var user User
+    // Intenta bindear el user dado en el context al modelo de User
     if err := c.ShouldBindJSON(&user); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
         return
     }
+    //Verifica que sea un email valido
     if (!IsEmail(user.WorkEmail)){
         c.JSON(http.StatusBadRequest, gin.H{"error":"Invalid email"})
         return
@@ -174,6 +178,6 @@ func RegisterAuthRoutes(r *gin.Engine) {
     r.GET("/login/microsoft", loginWithMicrosoftHandler)
     r.GET("/callback/google", googleCallbackHandler)
     r.GET("/callback/microsoft", microsoftCallbackHandler)
-    r.POST("/login/native", native_login)
-    r.POST("/register", register)
+    r.POST("/login/native", Native_login)
+    r.POST("/createUser", CreateUser)
 }

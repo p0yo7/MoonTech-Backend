@@ -9,3 +9,4 @@ github.com/gorilla/sessions
 golang.org/x/crypto/bcrypt
 github.com/lib/pq
 github.com/golang-jwt/jwt/v4
+github.com/gin-contrib/cors

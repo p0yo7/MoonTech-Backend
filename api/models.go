@@ -15,10 +15,15 @@ type User struct {
     WorkPhone  string `gorm:"size:20" json:"workPhone"`
     Password   string `gorm:"size:255;not null" json:"password"`
     Area       int    `json:"area"`
-    LeaderID   int    `json:"leaderId"`
+    leaderId   int    `json:"leaderId"`
     Position   string `gorm:"size:100" json:"position"`
     Role       string `gorm:"size:50" json:"role"`
 }
+
+//Necesario para que gorm no lo traduzca a MoonTech.projects
+// func (User) TableName() string {
+//     return "User"
+// }
 
 // Project representa la tabla de proyectos
 type Project struct {

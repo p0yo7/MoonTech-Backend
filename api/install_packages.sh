@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Funcion para instalar los paquetes necesarios
 # Leer cada línea del archivo packages.txt
 while IFS= read -r package
 do

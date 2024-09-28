@@ -7,20 +7,6 @@ import (
     "fmt"
 )
 
-
-// CreateUser maneja la solicitud POST para crear un nuevo usuario
-func CreateUser(c *gin.Context) {
-    var user User
-    if err := c.ShouldBindJSON(&user); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-
-    DB.Create(&user)
-    c.JSON(http.StatusOK, user)
-}
-
-
 func CreateProject(c *gin.Context) {
     // Validar los headers y obtener los claims
     claims, err := ValidateHeaders(c)

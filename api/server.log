@@ -58,3 +58,241 @@ Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-
 [GIN-debug] Listening and serving HTTP on :8080
 [GIN] 2024/09/24 - 16:55:22 | 201 |    77.96932ms |             ::1 | POST     "/register"
 [GIN] 2024/09/24 - 16:55:42 | 400 |     114.716µs |             ::1 | POST     "/register"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/24 - 17:12:02 | 404 |         470ns |             ::1 | POST     "/register"
+[GIN] 2024/09/24 - 17:12:07 | 409 |     608.624µs |             ::1 | POST     "/createUser"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/24 - 17:31:28 | 401 |    1.363632ms |             ::1 | POST     "/login/native"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/24 - 17:31:45 | 200 |   71.796651ms |             ::1 | POST     "/login/native"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/24 - 17:31:56 | 500 |   73.433459ms |             ::1 | POST     "/createUser"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/24 - 17:33:08 | 500 |   78.294478ms |             ::1 | POST     "/createUser"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /createProject            --> main.CreateProject (3 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (3 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (3 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (3 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (3 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (3 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (3 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] POST   /createProject            --> main.CreateProject (4 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (4 handlers)
+[GIN-debug] GET    /login/google             --> main.loginWithGoogleHandler (4 handlers)
+[GIN-debug] GET    /login/microsoft          --> main.loginWithMicrosoftHandler (4 handlers)
+[GIN-debug] GET    /callback/google          --> main.googleCallbackHandler (4 handlers)
+[GIN-debug] GET    /callback/microsoft       --> main.microsoftCallbackHandler (4 handlers)
+[GIN-debug] POST   /login/native             --> main.native_login (4 handlers)
+[GIN-debug] POST   /createUser               --> main.createUser (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] POST   /login/native             --> main.Native_login (6 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/26 - 13:24:30 | 401 |     926.571µs |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:24:40 | 401 |     616.863µs |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:25:18 | 404 |         477ns |             ::1 | POST     "/createUser"
+[GIN-debug] POST   /login/native             --> main.Native_login (6 handlers)
+[GIN-debug] POST   /createUser               --> main.CreateUser (6 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/26 - 13:26:24 | 409 |     560.789µs |             ::1 | POST     "/createUser"
+[GIN] 2024/09/26 - 13:26:31 | 409 |     505.761µs |             ::1 | POST     "/createUser"
+[GIN] 2024/09/26 - 13:26:42 | 500 |   75.024753ms |             ::1 | POST     "/createUser"
+[GIN] 2024/09/26 - 13:27:00 | 201 |   83.030881ms |             ::1 | POST     "/createUser"
+[GIN] 2024/09/26 - 13:27:15 | 200 |   111.20371ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:28:07 | 404 |         535ns |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:34:41 | 200 |   74.035638ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:38:49 | 401 |     942.327µs |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:38:54 | 200 |   72.249318ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:43:00 | 404 |         435ns |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:52:56 | 404 |         503ns |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:53:47 | 404 |         212ns |             ::1 | POST     "/createProject"
+[GIN-debug] POST   /login/native             --> main.Native_login (6 handlers)
+[GIN-debug] POST   /createUser               --> main.CreateUser (6 handlers)
+[GIN-debug] POST   /createProject            --> main.CreateProject (6 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (6 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/26 - 13:54:13 | 401 |     157.203µs |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:54:33 | 200 |   74.643405ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 13:58:02 | 200 |    6.275341ms |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:59:30 | 401 |       43.95µs |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 13:59:55 | 200 |   79.002324ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 14:00:15 | 200 |    3.048505ms |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:01:09 | 401 |      74.478µs |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:01:32 | 200 |    6.419514ms |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:04:45 | 200 |   74.461796ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 14:05:29 | 200 |     7.84251ms |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:25:55 | 200 |   72.928823ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 14:26:25 | 401 |      81.483µs |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:26:29 | 401 |      55.336µs |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 14:27:48 | 200 |    5.318624ms |             ::1 | POST     "/createProject"
+[GIN-debug] POST   /login/native             --> main.Native_login (6 handlers)
+[GIN-debug] POST   /createUser               --> main.CreateUser (6 handlers)
+[GIN-debug] POST   /createProject            --> main.CreateProject (6 handlers)
+[GIN-debug] POST   /createRequirement        --> main.CreateRequirement (6 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2024/09/26 - 15:29:58 | 200 |    86.28811ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 15:30:17 | 200 |    6.165292ms |             ::1 | POST     "/createProject"
+[GIN] 2024/09/26 - 15:56:30 | 200 |   75.869264ms |             ::1 | POST     "/login/native"
+[GIN] 2024/09/26 - 15:56:54 | 200 |    4.576612ms |             ::1 | POST     "/createProject"
