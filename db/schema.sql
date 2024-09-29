@@ -3,81 +3,81 @@ CREATE DATABASE MoonTech;
 USE MoonTech;
 
 -- Tabla de tipos de negocio
-CREATE TABLE businessType (
+CREATE TABLE businessTypes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     color VARCHAR(20)
 );
 
 -- Tabla de representantes
-CREATE TABLE Representatives (
+CREATE TABLE representatives (
     id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(50),
     lastname VARCHAR(50),
-    workEmail VARCHAR(100),
-    workPhone VARCHAR(20)
+    work_email VARCHAR(100),
+    work_phone VARCHAR(20)
 );
 
 -- Tabla de áreas
-CREATE TABLE Area (
+CREATE TABLE areas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     description TEXT
 );
 
 -- Tabla de compañías
-CREATE TABLE Companies (
+CREATE TABLE companies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     representativeId INT, -- Hace referencia a la tabla de Representantes
     businessType INT, -- Hace referencia a la tabla businessType
-    FOREIGN KEY (representativeId) REFERENCES Representatives(id),
-    FOREIGN KEY (businessType) REFERENCES businessType(id)
+    FOREIGN KEY (representativeId) REFERENCES representatives(id),
+    FOREIGN KEY (businessType) REFERENCES businessTypes(id)
 );
 
 -- Tabla de usuarios
-CREATE TABLE User (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
-    firstname VARCHAR(50),
+    first_name VARCHAR(50),
     lastname VARCHAR(50),
-    workEmail VARCHAR(100) UNIQUE,
-    workPhone VARCHAR(20),
+    work_email VARCHAR(100) UNIQUE,
+    work_phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
     area INT,
     leaderId INT,
     position VARCHAR(100),
     role VARCHAR(50),
-    FOREIGN KEY (area) REFERENCES Area(id),
-    FOREIGN KEY (leaderId) REFERENCES User(id) -- Referencia a sí mismo
+    FOREIGN KEY (area) REFERENCES areas(id),
+    FOREIGN KEY (leaderId) REFERENCES users(id) -- Referencia a sí mismo
 );
 
 -- Tabla de proyectos
-CREATE TABLE Project (
+CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     projName VARCHAR(100),
     owner INT, -- Hace referencia al userId
     company INT, -- Hace referencia a la tabla de Companies
     area INT, -- Hace referencia a la tabla de Areas
     startDate DATE,
-    FOREIGN KEY (owner) REFERENCES User(id),
-    FOREIGN KEY (company) REFERENCES Companies(id),
-    FOREIGN KEY (area) REFERENCES Area(id)
+    FOREIGN KEY (owner) REFERENCES users(id),
+    FOREIGN KEY (company) REFERENCES companies(id),
+    FOREIGN KEY (area) REFERENCES areas(id)
 );
 
 -- Tabla de líderes
-CREATE TABLE Leaders (
+CREATE TABLE leaders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     projId INT, -- Hace referencia a Project
     userId INT, -- Hace referencia a User
     area INT, -- Hace referencia a Area
-    FOREIGN KEY (projId) REFERENCES Project(id),
-    FOREIGN KEY (userId) REFERENCES User(id),
-    FOREIGN KEY (area) REFERENCES Area(id)
+    FOREIGN KEY (projId) REFERENCES projects(id),
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (area) REFERENCES areas(id)
 );
 
 -- Tabla de requerimientos
-CREATE TABLE Requirements (
+CREATE TABLE requirements (
     id INT AUTO_INCREMENT PRIMARY KEY,
     projectId INT, -- Hace referencia a Project
     owner INT, -- Hace referencia a User
@@ -85,23 +85,23 @@ CREATE TABLE Requirements (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     approved BOOLEAN,
     approverId INT, -- Hace referencia a User
-    FOREIGN KEY (projectId) REFERENCES Project(id),
-    FOREIGN KEY (owner) REFERENCES User(id),
-    FOREIGN KEY (approverId) REFERENCES User(id)
+    FOREIGN KEY (projectId) REFERENCES projects(id),
+    FOREIGN KEY (owner) REFERENCES users(id),
+    FOREIGN KEY (approverId) REFERENCES users(id)
 );
 
 -- Tabla de comentarios
-CREATE TABLE Comment (
+CREATE TABLE comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     owner INT, -- Hace referencia a User
     parent INT, -- Puede ser un requerimiento o una tarea
     text TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (owner) REFERENCES User(id)
+    FOREIGN KEY (owner) REFERENCES users(id)
 );
 
 -- Tabla de tareas
-CREATE TABLE Tasks (
+CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     area INT, -- Hace referencia a Area
     title VARCHAR(100),
@@ -111,7 +111,7 @@ CREATE TABLE Tasks (
     estimatedTime INT,
     approved BOOLEAN,
     approverId INT, -- Hace referencia a User
-    FOREIGN KEY (area) REFERENCES Area(id),
-    FOREIGN KEY (createdBy) REFERENCES User(id),
-    FOREIGN KEY (approverId) REFERENCES User(id)
+    FOREIGN KEY (area) REFERENCES areas(id),
+    FOREIGN KEY (createdBy) REFERENCES users(id),
+    FOREIGN KEY (approverId) REFERENCES users(id)
 );

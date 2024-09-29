@@ -2,61 +2,188 @@
 package main
 
 import (
-    "net/http"
-    "github.com/gin-gonic/gin"
-    "fmt"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func CreateProject(c *gin.Context) {
-    // Validar los headers y obtener los claims
-    claims, err := ValidateHeaders(c)
-    if err != nil {
-        return // Ya se manejó el error dentro de ValidateHeaders
-    }
+func GetSchema(c *gin.Context) {
+	// Obtener el nombre de la base de datos
+	databaseName := DB.Migrator().CurrentDatabase()
 
-    // Crear un nuevo proyecto
-    var proj Project
-    if err := c.ShouldBindJSON(&proj); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Obtener todas las tablas usando una consulta SQL
+	var tables []string
+	rows, err := DB.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Rows()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudieron obtener las tablas"})
+		return
+	}
+	defer rows.Close()
 
-    // Asignar el ID de usuario del JWT al campo Owner del proyecto
-    proj.owner = int(claims.UserID)
+	for rows.Next() {
+		var tableName string
+		rows.Scan(&tableName)
+		tables = append(tables, tableName)
+	}
 
-    // Guardar el proyecto en la base de datos
-    result := DB.Create(&proj)
-    if result.Error != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
-        fmt.Println(result.Error)
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"message": "Project created successfully"})
+	// Responder con el nombre de la base de datos y las tablas
+	c.JSON(http.StatusOK, gin.H{
+		"database": databaseName,
+		"tables":   tables,
+	})
 }
 
-func CreateRequirement(c *gin.Context){
-    // Validar headers y obtener claims
-    claims, err := ValidateHeaders(c)
-    if err != nil {
-        return
-    }
+func CreateProject(c *gin.Context) {
+	// Validar los headers y obtener los claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		return // Ya se manejó el error dentro de ValidateHeaders
+	}
 
-    var req Requirements
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Crear un nuevo proyecto
+	var proj Projects
+	if err := c.ShouldBindJSON(&proj); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    // Asignar ID sacado del JWT
-    req.owner = int(claims.UserID)
-    
-    // Crear en DB si es successfull
-    result := DB.Create(&req)
-    if result.Error != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create requirement"})
-        fmt.Println(result.Error)
-        return
-    }
-    c.JSON(http.StatusOK, gin.H{"message": "Requirement created successfully"})
+	// Asignar el ID de usuario del JWT al campo Owner del proyecto
+	proj.Owner.ID = int(claims.UserID)
+
+	// Guardar el proyecto en la base de datos
+	result := DB.Create(&proj)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
+		fmt.Println(result.Error)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Project created successfully"})
+}
+
+func CreateRequirement(c *gin.Context) {
+	// Validar headers y obtener claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		return
+	}
+
+	var req Requirements
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Asignar ID sacado del JWT
+	req.Owner.ID = int(claims.UserID)
+
+	// Valores deafults
+	req.approved = false
+	// Si el requerimiento no tiene un aprobador, asignar el mismo
+	req.Approver.ID = int(claims.UserID)
+
+	// Crear en DB si es successfull
+	result := DB.Create(&req)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create requirement"})
+		fmt.Println(result.Error)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Requirement created successfully"})
+}
+
+func ApproveRequirement(c *gin.Context) {
+	// Validar headers y obtener claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Obtener el ID del requerimiento de los parámetros de la URL
+	reqID := c.Param("id")
+
+	var req Requirements
+	// Buscar el requerimiento por ID
+	if err := DB.First(&req, reqID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Requirement not found"})
+		return
+	}
+
+	// Actualizar el campo de aprobado
+	req.approved = true
+	req.ApproverID = int(claims.UserID) // Asignar el usuario que aprobó el requerimiento
+
+	// Guardar los cambios en la base de datos
+	if err := DB.Save(&req).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to approve requirement"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Requirement approved successfully"})
+}
+
+func CreateArea(c *gin.Context) {
+	var area Areas
+	if err := c.ShouldBindJSON(&area); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := DB.Create(&area)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create area"})
+		fmt.Println(result.Error)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Area created successfully"})
+}
+
+func CreateCompany(c *gin.Context) {
+	var company Companies
+	if err := c.ShouldBindJSON(&company); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := DB.Create(&company)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create company"})
+		fmt.Println(result.Error)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Company created successfully"})
+}
+
+func CreateBusinessType(c *gin.Context) {
+	var business BusinessTypes
+	if err := c.ShouldBindJSON(&business); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := DB.Create(&business)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create business type"})
+		fmt.Println(result.Error)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Business type created successfully"})
+}
+
+func CreateRepresentative(c *gin.Context) {
+	var rep Representatives
+	if err := c.ShouldBindJSON(&rep); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := DB.Create(&rep)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create representative"})
+		fmt.Println(result.Error)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Representative created successfully"})
 }

@@ -1,30 +1,31 @@
-# Start from the official Golang image
+# Usar la imagen oficial de Golang como base
 FROM golang:1.23 AS builder
 
-# Set the working directory inside the container
+# Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copy go mod and sum files
+# Copiar los archivos go.mod y go.sum
 COPY go.mod go.sum ./
 
-# Download all dependencies
+# Descargar las dependencias
 RUN go mod download
 
-# Copy all files from the current directory
+# Copiar el resto de los archivos del proyecto al contenedor
 COPY . .
 
+# Asegurarse de que install_packages.sh tenga el formato correcto para Linux
+# Esto evitará problemas con los finales de línea en Windows
+RUN apt-get update && apt-get install -y dos2unix \
+    && dos2unix /app/install_packages.sh
 
-# Copy the .env file if it exists
-COPY .env ./
+# Ejecutar el script install_packages.sh
+RUN /bin/sh /app/install_packages.sh
 
-# Make the install_packages.sh script executable and run it
-RUN chmod +x install_packages.sh && ./install_packages.sh
-
-# Build the application
+# Compilar la aplicación
 RUN go build -o myapp .
 
-# Expose port 8080
+# Exponer el puerto 8080
 EXPOSE 8080
 
-# Command to run the executable
+# Comando para ejecutar la aplicación
 CMD ["./myapp"]

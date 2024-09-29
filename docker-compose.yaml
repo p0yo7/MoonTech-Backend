@@ -1,24 +1,33 @@
+version: '3.8'
+
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: skibidi!  # Cambia esto por una contraseña segura
-      MYSQL_DATABASE: MoonTech       # Cambia esto por el nombre de tu base de datos
-      MYSQL_USER: apiuser            # Cambia esto por tu nombre de usuario
-      MYSQL_PASSWORD: skibidi!       # Cambia esto por la contraseña del usuario
+      MYSQL_ROOT_PASSWORD: skibidi!
+      MYSQL_DATABASE: MoonTech
+      MYSQL_USER: apiuser
+      MYSQL_PASSWORD: skibidi!
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "13306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./db/db.sql:/docker-entrypoint-initdb.d/db.sql  # Monta el archivo db.sql desde la carpeta db
-    ports:
-      - "3306:3306"
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   app:
     build:
-      context: ./api  # Asegúrate de que esto apunta a la carpeta correcta
+      context: ./api
       dockerfile: Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
