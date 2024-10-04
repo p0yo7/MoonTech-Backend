@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
-
+	"fmt"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -22,12 +22,11 @@ func ConnectDatabase() {
 	}
 
 	// Obtener valores de las variables de entorno
-	user := os.Getenv("user")
-	password := os.Getenv("password")
+	user := os.Getenv("db_user")
+	password := os.Getenv("db_password")
 	database := os.Getenv("database")
 	host := os.Getenv("host")
 	port := os.Getenv("port")
-
 	// Formar el Data Source Name (DSN)
 	dsn := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + database + "?charset=utf8mb4&parseTime=True&loc=Local"
 

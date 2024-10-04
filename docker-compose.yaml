@@ -1,17 +1,18 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: skibidi!
-      MYSQL_DATABASE: MoonTech
-      MYSQL_USER: apiuser
-      MYSQL_PASSWORD: skibidi!
+      MYSQL_ROOT_PASSWORD: ${root_password}
+      MYSQL_DATABASE: ${database}
+      MYSQL_USER: ${db_user}
+      MYSQL_PASSWORD: ${db_password}
       MYSQL_ROOT_HOST: '%'
+      MYSQL_USER_PLUGIN: mysql_native_password
     ports:
       - "13306:3306"
+    env_file: 
+      - ./.env
     volumes:
       - db_data:/var/lib/mysql
       - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
@@ -33,9 +34,10 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 3306
-      DB_USER: apiuser
-      DB_PASSWORD: skibidi!
-      DB_NAME: MoonTech
-
+      DB_USER: ${db_user}
+      DB_PASSWORD: ${db_password}
+      DB_NAME: ${database}
+    env_file: 
+      - ./.env
 volumes:
   db_data:
