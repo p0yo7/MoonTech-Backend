@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gin-gonic/gin"
 	"net/http"
+    "time"
 )
 
 // isEmail verifica si un string es un email válido
@@ -37,11 +38,18 @@ func ValidateAndGetClaims(tokenString string) (*Claims, error) {
         return nil, fmt.Errorf("Error al validar el token: %w", err)
     }
 
+    // Verificar si el token es válido y si los claims pueden ser extraídos
     if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+        // Comprobar si el token ha expirado
+        if claims.ExpiresAt.Time.Before(time.Now()) {
+            return nil, errors.New("Token expirado")
+        }
         return claims, nil
     }
+
     return nil, errors.New("Token inválido")
 }
+
 
 func ValidateHeaders(c *gin.Context) (*Claims, error) {
     // Obtener el token JWT de la cabecera de la solicitud

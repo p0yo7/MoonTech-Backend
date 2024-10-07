@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-
+	"errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,6 +66,12 @@ func CreateRequirement(c *gin.Context) {
 	// Validar headers y obtener claims
 	claims, err := ValidateHeaders(c)
 	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
@@ -78,7 +84,7 @@ func CreateRequirement(c *gin.Context) {
 	// Asignar ID sacado del JWT
 	req.Owner.ID = int(claims.UserID)
 
-	// Valores deafults
+	// Valores defaults
 	req.approved = false
 	// Si el requerimiento no tiene un aprobador, asignar el mismo
 	req.Approver.ID = int(claims.UserID)
@@ -93,11 +99,17 @@ func CreateRequirement(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Requirement created successfully"})
 }
 
+
 func ApproveRequirement(c *gin.Context) {
 	// Validar headers y obtener claims
 	claims, err := ValidateHeaders(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
 		return
 	}
 
@@ -123,6 +135,7 @@ func ApproveRequirement(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Requirement approved successfully"})
 }
+
 
 func CreateArea(c *gin.Context) {
 	var area Areas
