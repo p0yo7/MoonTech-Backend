@@ -25,6 +25,16 @@ type AIResponse struct {
 
 // Función que maneja el webhook
 func SendRequirementsAI(c *gin.Context) {
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		}
+		return
+	}
 	var webhookReq WebhookRequest
 
 	// Parsear el cuerpo de la solicitud en JSON
