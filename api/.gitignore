@@ -7,3 +7,4 @@ node_modules/
 # Ignorar build y dist (si existen)
 dist/
 build/
+../.env

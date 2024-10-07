@@ -22,19 +22,62 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	setupLogOutput()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	// r.POST
+
+	// NATIVE LOGIN
 	r.POST("/login/native", Native_login)
+
+	// CREATE USER
 	r.POST("/createUser", CreateUser)
+
+	// CREATE PROJECT
 	r.POST("/createProject", CreateProject)
+
+
+	// CREATE REQUIREMENT
 	r.POST("/createRequirement", CreateRequirement)
-	r.PUT("/approveRequirement", ApproveRequirement)
-	r.GET("/getSchema", GetSchema)
+
+
+	// CREATE BUSINESS TYPE
 	r.POST("/createBusinessType", CreateBusinessType)
+
+	// CREATE REPRESENTATIVE 
 	r.POST("/createRepresentative", CreateRepresentative)
+
+	// CREATE AREA
 	r.POST("createArea", CreateArea)
+
+	// CREATE COMPANY
 	r.POST("/createCompany", CreateCompany)
-	// Dockers
-	// Docker compose
-	// Aprobar requerimiento
+
+	// ADD COMMENT
+	// r.POST("/createComment", CreateComment)
+
+	// SEND DATA TO META SERVER
+	r.POST("/sendRequirements", SendRequirementsAI)
+	// manejar como webhooks
+	// mandar la informacion del usuario 
+	// mandar informacion como requerimientos e info de un proyecto
+
+
+	// PUT
+	
+	// APPROVE REQUIREMENT
+	r.PUT("/approveRequirement", ApproveRequirement)
+	
+	// REJECT REQUIREMENT
+	// r.PUT("/rejectRequirement", RejecRequirement)
+
+	// MODIFY REQUIREMENT
+	// r.PUT("/modifyRequirement", ModifyRequirement)
+
+
+	// GETS
+	r.GET("/getSchema", GetSchema)
+
+	r.GET("/getAITasks",)
+
 	// Rechazar requerimiento
 	// Modificar requerimiento
 	// Algoritmo de parentezco para contratos marco
