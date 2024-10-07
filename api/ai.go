@@ -54,7 +54,6 @@ func SendRequirementsAI(c *gin.Context) {
 	}
 
 	// Realizar la solicitud POST al servidor AI
-	// De momento el puerto es variable
 	// De momento lo voy a hacer con otra funcion que no use webhooks por el tiempo
 	aiServerURL := "http://localhost:8501/getRequirements"
 	resp, err := http.Post(aiServerURL, "application/json", bytes.NewBuffer(aiReqBody))
