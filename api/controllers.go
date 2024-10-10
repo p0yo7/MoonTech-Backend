@@ -261,6 +261,6 @@ func GetProjectInfo(c *gin.Context) {
 	}
 
 	fmt.Printf("Project Info: %+v\n", projectInfo)
-
+	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga 
 	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
 }
