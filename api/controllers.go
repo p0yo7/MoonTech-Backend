@@ -248,7 +248,7 @@ type ProjectInfo struct {
 
 func GetProjectInfo(c *gin.Context) {
 	projectID := c.Param("id")
-
+	// Agregar verification de token
 	var projectInfo ProjectInfo
 
 	if err := DB.Table("projects p").
@@ -259,8 +259,6 @@ func GetProjectInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
 		return
 	}
-
-	fmt.Printf("Project Info: %+v\n", projectInfo)
 	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga 
 	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
 }
