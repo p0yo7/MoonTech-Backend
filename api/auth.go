@@ -67,18 +67,22 @@ func microsoftCallbackHandler(c *gin.Context) {
 
 // Estructura para el token
 type Claims struct {
-	UserID uint   `json:"user_id"`
-	Role   string `json:"role"`
+	UserID        uint   `json:"user_id"`
+	Role          string `json:"role"`
+	Team          int    `json:"team"` // Cambia a int si necesitas un ID de equipo
+	UserFirstName string `json:"user_first_name"`
 	jwt.RegisteredClaims
 }
 
 // Función para generar un JWT
-func generateJWT(userID uint, role string) (string, error) {
+func generateJWT(userID uint, role string, teamID int, userFirstName string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Define el tiempo de expiración del token
 
 	claims := &Claims{
-		UserID: userID,
-		Role:   role,
+		UserID:        userID,
+		Role:          role,
+		Team:          teamID, // Cambia a teamID
+		UserFirstName: userFirstName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -91,8 +95,8 @@ func generateJWT(userID uint, role string) (string, error) {
 
 func Native_login(c *gin.Context) {
 	var loginData struct {
-		Username string `json:"username"` // Cambiado a Username y exportado
-		Password string `json:"password"` // Cambiado para ser exportado
+		Username string `json:"username"`
+		Password string `json:"password"`
 	}
 
 	if err := c.ShouldBindJSON(&loginData); err != nil {
@@ -101,10 +105,10 @@ func Native_login(c *gin.Context) {
 	}
 
 	var user Users
-	result := DB.Where("username = ?", loginData.Username).First(&user) // Cambiado a loginData.Username
+	result := DB.Where("username = ?", loginData.Username).First(&user)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"}) // Mensaje actualizado
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		}
@@ -112,20 +116,22 @@ func Native_login(c *gin.Context) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginData.Password)); err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"}) // Mensaje actualizado
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
-	// Generar el token JWT
-	token, err := generateJWT(uint(user.ID), user.Role)
+	// Asegúrate de que user tiene un campo TeamID que es de tipo int
+	teamID := user.TeamID // Cambia a TeamID si corresponde al ID del equipo
+	userFirstName := user.FirstName
+
+	// Generar el token JWT con el equipo y el primer nombre del usuario
+	token, err := generateJWT(uint(user.ID), user.Role, teamID, userFirstName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
 
 	// Remover la contraseña antes de enviar los datos del usuario
-
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
 
@@ -166,6 +172,7 @@ func CreateUser(c *gin.Context) {
 	// Crear el nuevo usuario
 	result := DB.Create(&user)
 	if result.Error != nil {
+		fmt.Println(result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}

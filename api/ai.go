@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"errors" // Importar el paquete errors
+	"fmt"
 )
 
 // Estructura para los datos que recibe el webhook
@@ -35,6 +37,8 @@ func SendRequirementsAI(c *gin.Context) {
 		}
 		return
 	}
+	fmt.Println(claims)
+
 	var webhookReq WebhookRequest
 
 	// Parsear el cuerpo de la solicitud en JSON
@@ -54,7 +58,6 @@ func SendRequirementsAI(c *gin.Context) {
 	}
 
 	// Realizar la solicitud POST al servidor AI
-	// De momento lo voy a hacer con otra funcion que no use webhooks por el tiempo
 	aiServerURL := "http://localhost:8501/getRequirements"
 	resp, err := http.Post(aiServerURL, "application/json", bytes.NewBuffer(aiReqBody))
 	if err != nil {

@@ -27,6 +27,14 @@ type Representatives struct {
 func (Representatives) TableName() string {
 	return "representatives"
 }
+type Teams struct {
+	TeamID           int    `gorm:"column:team_id;primaryKey;autoIncrement"`
+	TeamName string `gorm:"column:team_name;size:100"`
+}
+
+func (Teams) TableName() string {
+	return "teams"
+}
 
 // Areas representa la tabla de áreas
 type Areas struct {
@@ -55,24 +63,23 @@ func (Companies) TableName() string {
 
 // Users representa la tabla de usuarios
 type Users struct {
-	ID        int    `gorm:"column:id;primaryKey;autoIncrement"`
-	Username  string `gorm:"column:username;size:50;not null"`
-	FirstName string `gorm:"column:first_name;size:50"` // Asegúrate de que este campo esté correctamente definido
-	LastName  string `gorm:"column:lastname;size:50"`
-	WorkEmail string `gorm:"column:work_email;size:100;unique"`
-	WorkPhone string `gorm:"column:work_phone;size:20"`
-	Password  string `gorm:"column:password;size:255;not null"`
-	AreaID    int    `gorm:"column:area"`     // Cambiado a AreaID
-	LeaderID  *int   `gorm:"column:leaderId"` // Cambiado a LeaderID
-	Position  string `gorm:"column:position;size:100"`
-	Role      string `gorm:"column:role;size:50"`
-	Area      Areas  `gorm:"foreignKey:AreaID;references:ID"` // Asegúrate que el foreignKey y references sean correctos
-	Leader    *Users `gorm:"foreignKey:LeaderID;references:ID"`
+	ID          int     `gorm:"column:id;primaryKey;autoIncrement"`
+	Username    string  `gorm:"column:username;size:50;not null"`
+	FirstName   string  `gorm:"column:first_name;size:50"`
+	LastName    string  `gorm:"column:lastname;size:50"`
+	WorkEmail   string  `gorm:"column:work_email;size:100;unique"`
+	WorkPhone   string  `gorm:"column:work_phone;size:20"`
+	Password    string  `gorm:"column:password;size:255;not null"`
+	TeamID      int     `gorm:"column:team"` // Asegúrate de que sea el ID correcto
+	LeaderID    *int    `gorm:"column:leaderId"`
+	Position     string  `gorm:"column:position;size:100"`
+	Role        string  `gorm:"column:role;size:50"`
+	Team        Teams   `gorm:"foreignKey:TeamID;references:id"` // Usa 'id' en lugar de 'ID'
+	Leader      *Users  `gorm:"foreignKey:LeaderID;references:id"` // Usa 'id' en lugar de 'ID'
 }
 
-// TableName establece el nombre de la tabla en la base de datos
 func (Users) TableName() string {
-	return "users" // Asegúrate de usar el nombre en minúsculas
+	return "users"
 }
 
 // Projects representa la tabla de proyectos
