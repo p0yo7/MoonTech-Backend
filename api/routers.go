@@ -81,7 +81,7 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.GET("/getAITasks",)
 	r.GET("/getTeamMembers") //Para la parte de teams
 	r.GET("/getProjects/:id") //get active projects for user
-	r.GET("/getProjects	")
+	r.GET("/Project/:id", GetProjectInfo)
 	// Rechazar requerimiento
 	// Modificar requerimiento
 	// Algoritmo de parentezco para contratos marco

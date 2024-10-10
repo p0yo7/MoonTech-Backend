@@ -39,8 +39,8 @@ func (Teams) TableName() string {
 // Areas representa la tabla de áreas
 type Areas struct {
 	AreaID           int    `gorm:"column:area_id;primaryKey;autoIncrement"`
-	area_name        string `gorm:"column:area_name;size:100"`
-	area_description string `gorm:"column:area_description;type:text"`
+	area_name        string `gorm:"column:name;size:100"`
+	area_description string `gorm:"column:description;type:text"`
 }
 
 func (Areas) TableName() string {
@@ -50,7 +50,7 @@ func (Areas) TableName() string {
 // Companies representa la tabla de compañías
 type Companies struct {
 	CompanyID        int             `gorm:"column:company_id;primaryKey;autoIncrement"`
-	company_name     string          `gorm:"column:name;size:100"`
+	CompanyName     string          `gorm:"column:name;size:100"`
 	RepresentativeID int             `gorm:"column:representativeId"`
 	BusinessTypeID   int             `gorm:"column:businessType"`
 	representative   Representatives `gorm:"foreignKey:RepresentativeID;references:RepresentativeID"`
@@ -85,7 +85,7 @@ func (Users) TableName() string {
 // Projects representa la tabla de proyectos
 type Projects struct {
 	ID           int       `gorm:"column:id;primaryKey;autoIncrement"`
-	project_name string    `gorm:"column:proj_name;size:100"`
+	ProjectName string    `gorm:"column:projName;size:100"`
 	OwnerID      int       `gorm:"column:owner"`
 	CompanyID    int       `gorm:"column:company"`
 	AreaID       int       `gorm:"column:area"`
