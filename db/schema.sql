@@ -2,6 +2,11 @@ DROP DATABASE IF EXISTS MoonTech;
 CREATE DATABASE MoonTech;
 USE MoonTech;
 
+CREATE TABLE teams ( 
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    team_name varchar(100)
+);
+
 -- Tabla de tipos de negocio
 CREATE TABLE businessTypes (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -44,11 +49,11 @@ CREATE TABLE users (
     work_email VARCHAR(100) UNIQUE,
     work_phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    area INT,
+    team INT,
     leaderId INT,
     position VARCHAR(100),
     role VARCHAR(50),
-    FOREIGN KEY (area) REFERENCES areas(id),
+    FOREIGN KEY (team) REFERENCES teams(id),
     FOREIGN KEY (leaderId) REFERENCES users(id) -- Referencia a sí mismo
 );
 
@@ -60,6 +65,7 @@ CREATE TABLE projects (
     company INT, -- Hace referencia a la tabla de Companies
     area INT, -- Hace referencia a la tabla de Areas
     startDate DATE,
+    status INT, -- active 1 inactive 0
     FOREIGN KEY (owner) REFERENCES users(id),
     FOREIGN KEY (company) REFERENCES companies(id),
     FOREIGN KEY (area) REFERENCES areas(id)
@@ -115,3 +121,70 @@ CREATE TABLE tasks (
     FOREIGN KEY (createdBy) REFERENCES users(id),
     FOREIGN KEY (approverId) REFERENCES users(id)
 );
+
+
+-- get Areas
+-- get Teams 
+-- get 
+CREATE VIEW getAreas AS 
+    select id, name from areas a;
+
+CREATE VIEW getTeams AS 
+    select id, team_name from teams t;
+
+
+
+-- Obtener los proyectos activos de un usuario
+DELIMITER $$
+CREATE PROCEDURE GetActiveProjectsForUser(
+    IN userId int)
+BEGIN
+    select * from projects p
+    inner join users u on u.id = p.owner
+    where p.status = 1 and p.owner = userId;
+END$$
+DELIMITER ;
+
+
+
+
+-- Obtener la informacion de un proyecto cuando se le da click por id
+-- Se necesitan: requerimientos, tareas, comments
+DELIMITER $$
+CREATE PROCEDURE GetProjectRequirements(
+    IN projectId INT
+)
+BEGIN 
+    SELECT 
+        r.id AS requirement_id,
+        r.text AS requirement_text,
+        r.approved AS requirement_approved,
+        r.timestamp AS requirement_timestamp
+    FROM 
+        requirements r
+    WHERE 
+        r.projectId = projectId;
+END$$
+DELIMITER ;
+
+
+-- get Tasks
+DELIMITER $$
+CREATE PROCEDURE GetProjectTasks(
+    IN projectId INT
+)
+BEGIN 
+    SELECT 
+        t.id AS task_id,
+        t.title AS task_title,
+        t.description AS task_description,
+        t.estimatedTime AS task_estimated_time
+    FROM 
+        tasks t
+    WHERE 
+        t.area = (SELECT area FROM projects WHERE id = projectId);
+END$$
+DELIMITER ; 
+-- get ActiveProjectsForUser
+-- calculate Progress based on stage and requirements
+-- get ProjectInfo

@@ -26,6 +26,7 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	// r.POST
 
 	// NATIVE LOGIN
+	// Agregarle el nombre del usuario, rol, equipo y id
 	r.POST("/login/native", Native_login)
 
 	// CREATE USER
@@ -51,6 +52,7 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	// CREATE COMPANY
 	r.POST("/createCompany", CreateCompany)
 
+	r.POST("/createTeam", CreateTeam)
 	// ADD COMMENT
 	// r.POST("/createComment", CreateComment)
 
@@ -77,7 +79,9 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.GET("/getSchema", GetSchema)
 
 	r.GET("/getAITasks",)
-
+	r.GET("/getTeamMembers") //Para la parte de teams
+	r.GET("/getProjects/:id") //get active projects for user
+	r.GET("/getProjects	")
 	// Rechazar requerimiento
 	// Modificar requerimiento
 	// Algoritmo de parentezco para contratos marco

@@ -34,6 +34,23 @@ func GetSchema(c *gin.Context) {
 	})
 }
 
+func GetProjects(c *gin.Context){
+	// Validar headers
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		return // Ya se manejó el error dentro de ValidateHeaders
+	}
+	fmt.Println(claims)
+	// Obtener id
+	// Obtener proyectos abiertos del usuario
+}
+
+func GetProjectsByID(c *gin.Context){
+	// Validar Headers
+	// Obtener Id del proyecto
+}
+
+
 func CreateProject(c *gin.Context) {
 	// Validar los headers y obtener los claims
 	claims, err := ValidateHeaders(c)
@@ -135,6 +152,27 @@ func ApproveRequirement(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Requirement approved successfully"})
 }
+
+
+func CreateTeam(c *gin.Context) {
+	var team Teams
+
+	// Bind the incoming JSON to the team struct
+	if err := c.ShouldBindJSON(&team); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	// Save the team to the database
+	if err := DB.Create(&team).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create team"})
+		return
+	}
+
+	// Return success message
+	c.JSON(http.StatusOK, gin.H{"message": "Team created successfully", "team": team})
+}
+
 
 
 func CreateArea(c *gin.Context) {
