@@ -242,27 +242,24 @@ func CreateRepresentative(c *gin.Context) {
 
 type ProjectInfo struct {
 	ProjectID   int    `json:"project_id"`
-	ProjectName string `json:"project_name"`  
+	ProjectName string `json:"project_name"`
 	CompanyName string `json:"company_name"`
 }
 
-
 func GetProjectInfo(c *gin.Context) {
-	// Agregar validación del token del usuario (si es necesario)
 	projectID := c.Param("id")
 
 	var projectInfo ProjectInfo
 
-	// Hacer una consulta simple para obtener el nombre del proyecto y el nombre de la empresa
 	if err := DB.Table("projects p").
-	Select("p.id as project_id, p.projName as project_name, c.name as company_name").  // Asegúrate de que 'projName' se mapea a 'project_name'
-	Joins("INNER JOIN companies c ON p.company = c.id").
-	Where("p.id = ?", projectID).
-	Scan(&projectInfo).Error; err != nil {
-	c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
-	return
-}
-	// Aquí se asigna projectInfo y se imprime su contenido
+		Select("p.id as project_id, p.projName as project_name, c.name as company_name").
+		Joins("INNER JOIN companies c ON p.company = c.id").
+		Where("p.id = ?", projectID).
+		Scan(&projectInfo).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
+		return
+	}
+
 	fmt.Printf("Project Info: %+v\n", projectInfo)
 
 	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
