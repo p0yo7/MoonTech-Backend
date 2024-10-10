@@ -146,6 +146,17 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+CREATE PROCEDURE GetProjectInfo(
+    IN projId int
+)
+BEGIN
+    select projName, company from project p
+    where p.id = projId;
+
+END$$
+DELIMITER ;
+
 
 
 -- Obtener la informacion de un proyecto cuando se le da click por id
