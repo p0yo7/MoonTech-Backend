@@ -82,6 +82,15 @@ func (Users) TableName() string {
 	return "users"
 }
 
+// Frameworks represent las tecnologias que se pueden usar en el proyecto
+type Frameworks struct {
+	ID int `gorm:"column:id;primaryKey;autoIncrement"`
+	FrameworkName string `gorm:"column:name;size:40"`
+	Language string `gorm:"column:language;size:40"`
+	Licence string `gorm:"column:licence;size:40"`
+	Compatibility string `gorm:"column:compatibility;size:40"`
+}
+
 // Projects representa la tabla de proyectos
 type Projects struct {
 	ID           int       `gorm:"column:id;primaryKey;autoIncrement"`
@@ -89,6 +98,7 @@ type Projects struct {
 	OwnerID      int       `gorm:"column:owner"`
 	CompanyID    int       `gorm:"column:company"`
 	AreaID       int       `gorm:"column:area"`
+	Budget int `gorm:"column:budget"`
 	start_date   time.Time `gorm:"column:startDate;type:date"`
 	Owner        Users     `gorm:"foreignKey:OwnerID;references:ID"`
 	Company      Companies `gorm:"foreignKey:CompanyID;references:CompanyID"`
@@ -140,27 +150,64 @@ type Comments struct {
 	Text      string    `gorm:"column:text;type:text"`
 	Timestamp time.Time `gorm:"column:timestamp;type:datetime;default:CURRENT_TIMESTAMP"`
 	Owner     Users     `gorm:"foreignKey:OwnerID;references:ID"`
+	Parent Requirements `gorm:"foreignKey:ParentID;references:ID"`
 }
 
 func (Comments) TableName() string {
 	return "comments"
 }
 
-// Tasks representa la tabla de tareas
+
+// CREATE TABLE tasks (
+//     id INT AUTO_INCREMENT PRIMARY KEY,
+//     requirement INT, -- referencia al requerimiento del que se creo
+//     team INT, -- referencia al equipo que se involucra
+//     createdBy INT, -- referencia al usuario que lo creo 
+//     name VARCHAR(100), -- nombre de la task
+//     description VARCHAR(255),
+//     language INT, -- referencia al lenguaje que se utiliza
+//     framework INT, -- referencia al framework que se utiliza
+//     estimated_time INT, -- tiempo que dura el desarrollo (horas)
+//     estimated_cost INT, -- costo en dolares del desarrollo
+//     ajuste DECIMAL, -- ajuste
+//     FOREIGN KEY (requirement) REFERENCES requirements(id),
+//     FOREIGN KEY (team) REFERENCES teams(id),
+//     FOREIGN KEY (createdBy) REFERENCES users(id),
+//     FOREIGN KEY (framework) REFERENCES frameworks(name),
+//     FOREIGN KEY (language) REFERENCES frameworks(language)
+// );
+
 type Tasks struct {
-	ID            int       `gorm:"column:id;primaryKey;autoIncrement"`
-	AreaID        int       `gorm:"column:area_id"`
-	Title         string    `gorm:"column:title;size:100"`
-	CreatedBy     int       `gorm:"column:created_by"`
-	Description   string    `gorm:"column:description;type:text"`
-	Timestamp     time.Time `gorm:"column:timestamp;type:datetime;default:CURRENT_TIMESTAMP"`
-	EstimatedTime int       `gorm:"column:estimated_time"`
-	Approved      bool      `gorm:"column:approved"`
-	ApproverID    int       `gorm:"column:approver_id"`
-	Area          Areas     `gorm:"foreignKey:AreaID;references:AreaID"`
-	Creator       Users     `gorm:"foreignKey:CreatedBy;references:ID"`
-	Approver      Users     `gorm:"foreignKey:ApproverID;references:ID"`
+	ID int `gorm:"column:id;primaryKey;autoIncrement"`
+	RequirementID int `gorm:"column:requirement"`
+	TeamID int `gorm:"column:team"`
+	CreatedByID int `gorm:"column:createdBy"`
+	Name string `gorm:"column:name;size:40"`
+	Description string `gorm:"column:description"`
+	Language int `gorm:"column:language"`
+	FrameworkID int `gorm:"column:name"`
+	EstimatedTime int `gorm:"column:estimated_time"`
+	EstimateCost int `gorm:"column:estimated_cost"`
+	Ajuste float64 `gorm:"column:ajuste;type:decimal(10,2)"`
+	Team Teams `gorm:"foreignKey:TeamID;references:ID"`
+	CreatedBy Users `gorm:"foreignKey:CreatedByID;references:ID"`
+	Framework Frameworks `gorm:"foreignKey:FrameworkID;references:ID"`
 }
+// Tasks representa la tabla de tareas
+// type Tasks struct {
+// 	ID            int       `gorm:"column:id;primaryKey;autoIncrement"`
+// 	AreaID        int       `gorm:"column:area_id"`
+// 	Title         string    `gorm:"column:title;size:100"`
+// 	CreatedBy     int       `gorm:"column:created_by"`
+// 	Description   string    `gorm:"column:description;type:text"`
+// 	Timestamp     time.Time `gorm:"column:timestamp;type:datetime;default:CURRENT_TIMESTAMP"`
+// 	EstimatedTime int       `gorm:"column:estimated_time"`
+// 	Approved      bool      `gorm:"column:approved"`
+// 	ApproverID    int       `gorm:"column:approver_id"`
+// 	Area          Areas     `gorm:"foreignKey:AreaID;references:AreaID"`
+// 	Creator       Users     `gorm:"foreignKey:CreatedBy;references:ID"`
+// 	Approver      Users     `gorm:"foreignKey:ApproverID;references:ID"`
+// }
 
 func (Tasks) TableName() string {
 	return "tasks"
