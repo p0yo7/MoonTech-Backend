@@ -90,10 +90,8 @@ CREATE TABLE leaders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     projId INT, -- Hace referencia a Project
     userId INT, -- Hace referencia a User
-    area INT, -- Hace referencia a Area
     FOREIGN KEY (projId) REFERENCES projects(id),
     FOREIGN KEY (userId) REFERENCES users(id),
-    FOREIGN KEY (area) REFERENCES areas(id)
 );
 
 -- Tabla de requerimientos
@@ -149,10 +147,21 @@ CREATE TABLE tasks (
     estimated_time INT, -- tiempo que dura el desarrollo (horas)
     estimated_cost INT, -- costo en dolares del desarrollo
     ajuste DECIMAL(10,2), -- ajuste
+    createdTime datetime,
     FOREIGN KEY (requirement) REFERENCES requirements(id),
     FOREIGN KEY (team) REFERENCES teams(id),
     FOREIGN KEY (createdBy) REFERENCES users(id),
     FOREIGN KEY (framework) REFERENCES frameworks(id)
+);
+
+-- notifications () 
+-- id, status, titulo, texto, createdat,
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    status INT default 1, -- active, inactive
+    created_time TIMESTAMP,
+    project INT,
+    FOREIGN KEY (project) REFERENCES projects(id)
 );
 
 -- get Areas
@@ -209,6 +218,7 @@ BEGIN
         r.projectId = projectId;
 END$$
 DELIMITER ;
+
 
 
 -- get Tasks

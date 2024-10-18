@@ -4,7 +4,7 @@ package main
 import (
 	"log"
 	"os"
-
+	// "api/controllers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -82,6 +82,16 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.GET("/getTeamMembers") //Para la parte de teams
 	r.GET("/getProjects/:id") //get active projects for user
 	r.GET("/Project/:id", GetProjectInfo)
+	r.GET("/ProjectRequirements/:id", GetProjectRequirements)
+	// Agregar get project reqs
+	// Agregar get planeacion
+	// Agregar get estimacion
+	// Agregar get Generacion Propuesta
+	// Agregar get Validacion y Cierre
+	// Agregar get Entrega
+
+
+
 	// Rechazar requerimiento
 	// Modificar requerimiento
 	// Algoritmo de parentezco para contratos marco

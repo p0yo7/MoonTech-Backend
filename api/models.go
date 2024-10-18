@@ -114,10 +114,8 @@ type Leaders struct {
 	ID      int      `gorm:"column:id;primaryKey;autoIncrement"`
 	ProjID  int      `gorm:"column:proj_id"`
 	UserID  int      `gorm:"column:user_id"`
-	AreaID  int      `gorm:"column:area_id"`
 	Project Projects `gorm:"foreignKey:ProjID;references:ID"`
 	User    Users    `gorm:"foreignKey:UserID;references:ID"`
-	Area    Areas    `gorm:"foreignKey:AreaID;references:AreaID"`
 }
 
 func (Leaders) TableName() string {
@@ -178,20 +176,21 @@ func (Comments) TableName() string {
 // );
 
 type Tasks struct {
-	ID int `gorm:"column:id;primaryKey;autoIncrement"`
-	RequirementID int `gorm:"column:requirement"`
-	TeamID int `gorm:"column:team"`
-	CreatedByID int `gorm:"column:createdBy"`
-	Name string `gorm:"column:name;size:40"`
-	Description string `gorm:"column:description"`
-	Language int `gorm:"column:language"`
-	FrameworkID int `gorm:"column:name"`
-	EstimatedTime int `gorm:"column:estimated_time"`
-	EstimateCost int `gorm:"column:estimated_cost"`
-	Ajuste float64 `gorm:"column:ajuste;type:decimal(10,2)"`
-	Team Teams `gorm:"foreignKey:TeamID;references:ID"`
-	CreatedBy Users `gorm:"foreignKey:CreatedByID;references:ID"`
-	Framework Frameworks `gorm:"foreignKey:FrameworkID;references:ID"`
+	ID             int       `gorm:"column:id;primaryKey;autoIncrement"`
+	RequirementID  int       `gorm:"column:requirement"`
+	TeamID         int       `gorm:"column:team"`
+	CreatedByID    int       `gorm:"column:createdBy"`
+	Name           string    `gorm:"column:name;size:40"`
+	Description    string    `gorm:"column:description"`
+	Language       int       `gorm:"column:language"`
+	FrameworkID    int       `gorm:"column:framework"` 
+	EstimatedTime   int       `gorm:"column:estimated_time"`
+	EstimateCost    int       `gorm:"column:estimated_cost"`
+	Ajuste         float64   `gorm:"column:ajuste;type:decimal(10,2)"`
+	CreatedTime    time.Time `gorm:"column:createdTime;type:timestamp;default:CURRENT_TIMESTAMP"` // Default a CURRENT_TIMESTAMP
+	Team           Teams     `gorm:"foreignKey:TeamID;references:ID"`
+	CreatedBy      Users     `gorm:"foreignKey:CreatedByID;references:ID"`
+	Framework      Frameworks `gorm:"foreignKey:FrameworkID;references:ID"`
 }
 // Tasks representa la tabla de tareas
 // type Tasks struct {
@@ -211,4 +210,16 @@ type Tasks struct {
 
 func (Tasks) TableName() string {
 	return "tasks"
+}
+
+type Notifications struct {
+	ID int `gorm:"column:id;primaryKey;autoIncrement"`
+	Status int `gorm:"column:status;"`
+	CreatedTime time.Time `gorm:"column:created_time"`
+	ProjectID int `gorm:"column:project"`
+	Project Projects `gorm:"foreignKEy:ProjectID;refereces:ID"`
+}
+
+func (Notifications) TableName() string {
+	return "notifications"
 }
