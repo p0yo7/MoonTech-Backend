@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -292,10 +294,17 @@ func GetProjectInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
 		return
 	}
-	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga 
+	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga
 	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
 }
 
+type RequirementResponse struct {
+	ID                   int       `json:"id"`                    // ID del requerimiento
+	ProjectID            int       `json:"project_id"`            // ID del proyecto al que pertenece
+	RequirementText      string    `json:"requirement_text"`      // Descripción del requerimiento
+	RequirementApproved  bool      `json:"requirement_approved"`  // Fecha de creación del requerimiento
+	RequirementTimestamp time.Time `json:"requirement_timestamp"` // Fecha de actualización del requerimiento
+}
 
 func GetProjectRequirements(c *gin.Context) {
 	// Validar headers y obtener claims
@@ -309,6 +318,7 @@ func GetProjectRequirements(c *gin.Context) {
 		}
 		return
 	}
+	fmt.Println(claims)
 
 	// Obtener el ID del proyecto de los parámetros de la URL
 	ProjID := c.Param("id")
@@ -317,7 +327,7 @@ func GetProjectRequirements(c *gin.Context) {
 	var requirements []RequirementResponse
 
 	// Llamar al procedimiento almacenado usando db.Raw()
-	result := db.Raw("CALL GetProjectRequirements(?)", ProjID).Scan(&requirements)
+	result := DB.Raw("CALL GetProjectRequirements(?)", ProjID).Scan(&requirements)
 
 	// Verificar si hubo errores al ejecutar el query
 	if result.Error != nil {
@@ -327,4 +337,44 @@ func GetProjectRequirements(c *gin.Context) {
 
 	// Retornar la respuesta en formato JSON
 	c.JSON(http.StatusOK, requirements)
+}
+
+type TaskResponse struct {
+	TaskID            int    `json:"task_id"`             // ID de la tarea
+	TaskTitle         string `json:"task_title"`          // Nombre de la tarea
+	TaskDescription   string `json:"task_description"`    // Descripción de la tarea
+	TaskEstimatedTime int    `json:"task_estimated_time"` // Tiempo estimado para la tarea (en horas)
+}
+
+func GetProjectPlanning(c *gin.Context) {
+	// Validar headers y obtener claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
+		return
+	}
+	fmt.Println(claims)
+
+	// Obtener el ID del proyecto de los parámetros de la URL
+	ProjID := c.Param("id")
+
+	// Crear un slice para almacenar las tareas
+	var tasks []TaskResponse // Asumiendo que tienes un struct TaskResponse para las tareas
+
+	// Llamar al procedimiento almacenado para obtener las tareas del proyecto
+	result := DB.Raw("CALL GetProjectTasks(?)", ProjID).Scan(&tasks)
+
+	// Verificar si hubo errores al ejecutar el query
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project tasks"})
+		return
+	}
+
+	// Retornar la respuesta en formato JSON
+	c.JSON(http.StatusOK, tasks)
 }

@@ -91,7 +91,7 @@ CREATE TABLE leaders (
     projId INT, -- Hace referencia a Project
     userId INT, -- Hace referencia a User
     FOREIGN KEY (projId) REFERENCES projects(id),
-    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
 -- Tabla de requerimientos
@@ -99,9 +99,9 @@ CREATE TABLE requirements (
     id INT AUTO_INCREMENT PRIMARY KEY,
     projectId INT, -- Hace referencia a Project
     owner INT, -- Hace referencia a User
-    text TEXT,
+    requirement_description VARCHAR(512),
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    approved BOOLEAN,
+    approved BOOLEAN DEFAULT FALSE,
     approverId INT, -- Hace referencia a User
     FOREIGN KEY (projectId) REFERENCES projects(id),
     FOREIGN KEY (owner) REFERENCES users(id),
@@ -209,7 +209,7 @@ CREATE PROCEDURE GetProjectRequirements(
 BEGIN 
     SELECT 
         r.id AS requirement_id,
-        r.text AS requirement_text,
+        r.requirement_description AS requirement_text,
         r.approved AS requirement_approved,
         r.timestamp AS requirement_timestamp
     FROM 
@@ -224,20 +224,22 @@ DELIMITER ;
 -- get Tasks
 DELIMITER $$
 CREATE PROCEDURE GetProjectTasks(
-    IN projectId INT
+    IN project_Id INT
 )
 BEGIN 
     SELECT 
         t.id AS task_id,
-        t.title AS task_title,
+        t.name AS task_title,
         t.description AS task_description,
-        t.estimatedTime AS task_estimated_time
+        t.estimated_time AS task_estimated_time
     FROM 
         tasks t
     WHERE 
-        t.area = (SELECT area FROM projects WHERE id = projectId);
+        t.requirement IN (SELECT id FROM requirements WHERE projectId = project_Id);
 END$$
-DELIMITER ; 
+DELIMITER ;
+
+
 -- get ActiveProjectsForUser
 -- calculate Progress based on stage and requirements
 -- get ProjectInfo
