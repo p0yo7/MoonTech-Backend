@@ -1,10 +1,11 @@
-// controllers.go
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"errors"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +35,7 @@ func GetSchema(c *gin.Context) {
 	})
 }
 
-func GetProjects(c *gin.Context){
+func GetProjects(c *gin.Context) {
 	// Validar headers
 	claims, err := ValidateHeaders(c)
 	if err != nil {
@@ -45,11 +46,11 @@ func GetProjects(c *gin.Context){
 	// Obtener proyectos abiertos del usuario
 }
 
-func GetProjectsByID(c *gin.Context){
+func GetProjectsByID(c *gin.Context) {
 	// Validar Headers
 	// Obtener Id del proyecto
+	fmt.Println(c)
 }
-
 
 func CreateProject(c *gin.Context) {
 	// Validar los headers y obtener los claims
@@ -116,7 +117,6 @@ func CreateRequirement(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Requirement created successfully"})
 }
 
-
 func ApproveRequirement(c *gin.Context) {
 	// Validar headers y obtener claims
 	claims, err := ValidateHeaders(c)
@@ -153,7 +153,6 @@ func ApproveRequirement(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Requirement approved successfully"})
 }
 
-
 func CreateTeam(c *gin.Context) {
 	var team Teams
 
@@ -172,8 +171,6 @@ func CreateTeam(c *gin.Context) {
 	// Return success message
 	c.JSON(http.StatusOK, gin.H{"message": "Team created successfully", "team": team})
 }
-
-
 
 func CreateArea(c *gin.Context) {
 	var area Areas
@@ -240,12 +237,50 @@ func CreateRepresentative(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Representative created successfully"})
 }
 
+func AssignProjectLeaders(users []Users, projId int, c *gin.Context) {
+	// claims, err := ValidateHeaders(c)
+	// if err != nil {
+	// 	// Verificar si el error es de token expirado
+	// 	if errors.Is(err, errors.New("Token expirado")) {
+	// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+	// 	} else {
+	// 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	// 	}
+	// 	return
+	// }
+	// for _, user := range users {
+	// 	leader := Leaders {
+	// 		UserID: int(user.ID),
+	// 		ProjID: int(projId),
+	// 	}
+	// 	result := DB.Create(&leader)
+	// 	if result.Error != nil {
+	// 		return result.Error
+	// 	}
+	// }
+	fmt.Println("TODO")
+	// return nil
+}
+
+// Obtener users por team
+// Obtener areas
+func NotifyProjectCreation(users []Users) {
+	fmt.Println("XD")
+}
+
+func NotifyProjectTurn(users []Users) {
+	fmt.Println("XD")
+}
+
 type ProjectInfo struct {
 	ProjectID   int    `json:"project_id"`
 	ProjectName string `json:"project_name"`
 	CompanyName string `json:"company_name"`
 }
 
+// Hacer que dependiendo de la fase en la que se encuentra es lo que se muestra
+// Dividir como /project/:id/:stage
+// Guardar en cache de client side para reducir numero de requests
 func GetProjectInfo(c *gin.Context) {
 	projectID := c.Param("id")
 	// Agregar verification de token
@@ -259,6 +294,87 @@ func GetProjectInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
 		return
 	}
-	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga 
+	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga
 	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
+}
+
+type RequirementResponse struct {
+	ID                   int       `json:"id"`                    // ID del requerimiento
+	ProjectID            int       `json:"project_id"`            // ID del proyecto al que pertenece
+	RequirementText      string    `json:"requirement_text"`      // Descripción del requerimiento
+	RequirementApproved  bool      `json:"requirement_approved"`  // Fecha de creación del requerimiento
+	RequirementTimestamp time.Time `json:"requirement_timestamp"` // Fecha de actualización del requerimiento
+}
+
+func GetProjectRequirements(c *gin.Context) {
+	// Validar headers y obtener claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
+		return
+	}
+	fmt.Println(claims)
+
+	// Obtener el ID del proyecto de los parámetros de la URL
+	ProjID := c.Param("id")
+
+	// Crear un slice para almacenar los requerimientos
+	var requirements []RequirementResponse
+
+	// Llamar al procedimiento almacenado usando db.Raw()
+	result := DB.Raw("CALL GetProjectRequirements(?)", ProjID).Scan(&requirements)
+
+	// Verificar si hubo errores al ejecutar el query
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project requirements"})
+		return
+	}
+
+	// Retornar la respuesta en formato JSON
+	c.JSON(http.StatusOK, requirements)
+}
+
+type TaskResponse struct {
+	TaskID            int    `json:"task_id"`             // ID de la tarea
+	TaskTitle         string `json:"task_title"`          // Nombre de la tarea
+	TaskDescription   string `json:"task_description"`    // Descripción de la tarea
+	TaskEstimatedTime int    `json:"task_estimated_time"` // Tiempo estimado para la tarea (en horas)
+}
+
+func GetProjectPlanning(c *gin.Context) {
+	// Validar headers y obtener claims
+	claims, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
+		return
+	}
+	fmt.Println(claims)
+
+	// Obtener el ID del proyecto de los parámetros de la URL
+	ProjID := c.Param("id")
+
+	// Crear un slice para almacenar las tareas
+	var tasks []TaskResponse // Asumiendo que tienes un struct TaskResponse para las tareas
+
+	// Llamar al procedimiento almacenado para obtener las tareas del proyecto
+	result := DB.Raw("CALL GetProjectTasks(?)", ProjID).Scan(&tasks)
+
+	// Verificar si hubo errores al ejecutar el query
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project tasks"})
+		return
+	}
+
+	// Retornar la respuesta en formato JSON
+	c.JSON(http.StatusOK, tasks)
 }
