@@ -299,8 +299,7 @@ func GetProjectInfo(c *gin.Context) {
 }
 
 type RequirementResponse struct {
-	ID                   int       `json:"id"`                    // ID del requerimiento
-	ProjectID            int       `json:"project_id"`            // ID del proyecto al que pertenece
+	RequirementID        int       `json:"requirement_id"`        // ID del proyecto al que pertenece
 	RequirementText      string    `json:"requirement_text"`      // Descripción del requerimiento
 	RequirementApproved  bool      `json:"requirement_approved"`  // Fecha de creación del requerimiento
 	RequirementTimestamp time.Time `json:"requirement_timestamp"` // Fecha de actualización del requerimiento
