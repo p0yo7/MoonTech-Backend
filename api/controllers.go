@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
+	"strconv"
 	"github.com/gin-gonic/gin"
 )
 
@@ -273,29 +273,36 @@ func NotifyProjectTurn(users []Users) {
 }
 
 type ProjectInfo struct {
-	ProjectID   int    `json:"project_id"`
-	ProjectName string `json:"project_name"`
-	CompanyName string `json:"company_name"`
+	CompanyName        string `json:"company_name"`
+	CompanyDescription string `json:"company_description"`
+	CompanySize        int    `json:"company_size"`
+	ProjectName        string `json:"project_name"`
+	ProjectDescription string `json:"project_description"`
+	ProjectBudget      int    `json:"project_budget"`
 }
 
-// Hacer que dependiendo de la fase en la que se encuentra es lo que se muestra
-// Dividir como /project/:id/:stage
-// Guardar en cache de client side para reducir numero de requests
-func GetProjectInfo(c *gin.Context) {
-	projectID := c.Param("id")
-	// Agregar verification de token
-	var projectInfo ProjectInfo
-
-	if err := DB.Table("projects p").
-		Select("p.id as project_id, p.projName as project_name, c.name as company_name").
-		Joins("INNER JOIN companies c ON p.company = c.id").
-		Where("p.id = ?", projectID).
-		Scan(&projectInfo).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve project information"})
+func GetProjectGeneralInfo(c *gin.Context) {
+	// Obtener el ID del proyecto y convertirlo a entero
+	projectID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
 		return
 	}
-	// Falta obtener los requerimientos y hacer el display basado en lo que se tenga
-	c.JSON(http.StatusOK, gin.H{"projectInfo": projectInfo})
+
+	var projectInfo ProjectInfo
+
+	// Llamar al procedimiento almacenado con el ID convertido
+	result := DB.Raw("CALL GetProjectInfo(?)", projectID).Scan(&projectInfo)
+
+	// Verificar si hubo errores en la consulta
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project information"})
+		fmt.Println(result.Error)
+		return
+	}
+
+	// Retornar la información del proyecto en formato JSON
+	c.JSON(http.StatusOK, projectInfo)
 }
 
 type RequirementResponse struct {
@@ -308,7 +315,7 @@ type RequirementResponse struct {
 
 func GetProjectRequirements(c *gin.Context) {
 	// Validar headers y obtener claims
-	claims, err := ValidateHeaders(c)
+	_, err := ValidateHeaders(c)
 	if err != nil {
 		// Verificar si el error es de token expirado
 		if errors.Is(err, errors.New("Token expirado")) {
@@ -318,8 +325,6 @@ func GetProjectRequirements(c *gin.Context) {
 		}
 		return
 	}
-	fmt.Println(claims)
-
 	// Obtener el ID del proyecto de los parámetros de la URL
 	ProjID := c.Param("id")
 
@@ -346,9 +351,9 @@ type TaskResponse struct {
 	TaskEstimatedTime int    `json:"task_estimated_time"` // Tiempo estimado para la tarea (en horas)
 }
 
-func GetProjectPlanning(c *gin.Context) {
+func GetProjectTasks(c *gin.Context) {
 	// Validar headers y obtener claims
-	claims, err := ValidateHeaders(c)
+	_, err := ValidateHeaders(c)
 	if err != nil {
 		// Verificar si el error es de token expirado
 		if errors.Is(err, errors.New("Token expirado")) {
@@ -358,7 +363,6 @@ func GetProjectPlanning(c *gin.Context) {
 		}
 		return
 	}
-	fmt.Println(claims)
 
 	// Obtener el ID del proyecto de los parámetros de la URL
 	ProjID := c.Param("id")
@@ -377,4 +381,141 @@ func GetProjectPlanning(c *gin.Context) {
 
 	// Retornar la respuesta en formato JSON
 	c.JSON(http.StatusOK, tasks)
+}
+func CreateTasks(c *gin.Context) {
+	// Validar headers y obtener claims
+	_, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
+		return
+	}
+
+	var task Tasks
+
+	// Validar y enlazar datos JSON
+	if err := c.ShouldBindJSON(&task); err != nil {
+		fmt.Println("Error al analizar JSON:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		return
+	}
+	// Validar si el requirement existe antes de intentar crear la tarea
+	// var requirementExists bool
+	// if err := DB.Model(&Requirements{}).
+	// 	Select("count(*) > 0").
+	// 	Where("id = ?", task.RequirementID).
+	// 	Find(&requirementExists).Error; err != nil || !requirementExists {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid requirement ID"})
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// Intentar crear la tarea en la base de datos
+	if err := DB.Create(&task).Error; err != nil {
+		fmt.Println("Error al crear tarea:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
+		fmt.Println(task)
+		return
+	}
+
+	// Responder con éxito
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Task created successfully",
+		"task":    task,
+	})
+}
+
+type ProjectDescription struct {
+	ProjectID            int    `json:"project_id"`             // ID de la tarea
+	ProjectDescription         string `json:"project_description"`          // Nombre de la tarea
+	Budget   string `json:"project_budget"`    // Descripción de la tarea
+}
+
+
+func UpdateProjectDescription(c *gin.Context) {
+	// Validar headers y obtener claims
+	_, err := ValidateHeaders(c)
+	if err != nil {
+		// Verificar si el error es de token expirado
+		if errors.Is(err, errors.New("Token expirado")) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		}
+		return
+	}
+
+	// Parsear la solicitud JSON
+	var updatedProject ProjectDescription
+	if err := c.ShouldBindJSON(&updatedProject); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	// Buscar el proyecto existente por ID
+	var project Projects
+	if err := DB.First(&project, updatedProject.ProjectID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+		return
+	}
+
+	// Actualizar los campos del proyecto
+	project.ProjectDescription = updatedProject.ProjectDescription
+	budgetInt, err := strconv.Atoi(updatedProject.Budget)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{ "error": "Failed to update project" })
+	}
+	project.Budget = budgetInt
+
+	// Guardar los cambios en la base de datos
+	if err := DB.Save(&project).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update project"})
+		return
+	}
+
+	// Responder con los datos actualizados
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+	})
+}
+// ProjectResponse estructura para mapear los resultados del procedimiento almacenado
+type ProjectResponse struct {
+	ProjectID          int    `json:"project_id"`
+	ProjectName        string `json:"project_name"`
+	ProjectDescription string `json:"project_description"`
+	ProjectBudget      int    `json:"project_budget"`
+	CompanyName        string `json:"company_name"`
+	CompanyDescription string `json:"company_description"`
+	CompanySize        string `json:"company_size"`
+}
+
+// GetActiveProjectsForUserHandler obtiene los proyectos activos de un usuario
+func GetActiveProjectsForUser(c *gin.Context) {
+	// Obtener el ID del usuario de los parámetros de la URL
+	userID := c.Param("user_id")
+
+	// Validar que el userID sea un entero válido
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		return
+	}
+
+	// Crear un slice para almacenar la respuesta del procedimiento almacenado
+	var projects []ProjectResponse
+
+	// Llamar al procedimiento almacenado con GORM
+	result := DB.Raw("CALL GetActiveProjectsForUser(?)", userID).Scan(&projects)
+
+	// Verificar si hubo errores en la ejecución
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects", "details": result.Error.Error()})
+		return
+	}
+
+	// Retornar la respuesta en formato JSON
+	c.JSON(http.StatusOK, projects)
 }

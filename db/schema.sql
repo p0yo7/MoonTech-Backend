@@ -40,15 +40,16 @@ CREATE TABLE areas (
 );
 -- descripcion
 
--- aregar tamano
--- agregar ubicacion
--- ubicacion 
+
 -- Tabla de compañías
 CREATE TABLE companies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     representativeId INT, -- Hace referencia a la tabla de Representantes
     businessType INT, -- Hace referencia a la tabla businessType
+    country VARCHAR(50),
+    company_size INT,
+    company_description VARCHAR(1000),
     FOREIGN KEY (representativeId) REFERENCES representatives(id),
     FOREIGN KEY (businessType) REFERENCES businessTypes(id)
 );
@@ -78,6 +79,7 @@ CREATE TABLE projects (
     company INT, -- Hace referencia a la tabla de Companies
     area INT, -- Hace referencia a la tabla de Areas
     startDate DATE,
+    projectDescription VARCHAR(1000),
     budget INT, -- budget en dolares
     status INT, -- active 1 inactive 0
     FOREIGN KEY (owner) REFERENCES users(id),
@@ -143,15 +145,15 @@ CREATE TABLE tasks (
     name VARCHAR(100), -- nombre de la task
     description VARCHAR(255),
     language VARCHAR(40), -- referencia al lenguaje que se utiliza
-    framework INT, -- referencia al framework que se utiliza
+    -- framework INT NULL, -- referencia al framework que se utiliza
     estimated_time INT, -- tiempo que dura el desarrollo (horas)
     estimated_cost INT, -- costo en dolares del desarrollo
     ajuste DECIMAL(10,2), -- ajuste
     createdTime datetime,
     FOREIGN KEY (requirement) REFERENCES requirements(id),
     FOREIGN KEY (team) REFERENCES teams(id),
-    FOREIGN KEY (createdBy) REFERENCES users(id),
-    FOREIGN KEY (framework) REFERENCES frameworks(id)
+    FOREIGN KEY (createdBy) REFERENCES users(id)
+    -- FOREIGN KEY (framework) REFERENCES frameworks(id)
 );
 
 -- notifications () 
@@ -187,16 +189,16 @@ END$$
 DELIMITER ;
 
 
-DELIMITER $$
-CREATE PROCEDURE GetProjectInfo(
-    IN projId int
-)
-BEGIN
-    select projName, company from project p
-    where p.id = projId;
+-- DELIMITER $$
+-- CREATE PROCEDURE GetProjectInfo(
+--     IN projId int
+-- )
+-- BEGIN
+--     select projName, company from project p
+--     where p.id = projId;
 
-END$$
-DELIMITER ;
+-- END$$
+-- DELIMITER ;
 
 
 
@@ -237,6 +239,48 @@ BEGIN
     WHERE 
         t.requirement IN (SELECT id FROM requirements WHERE projectId = project_Id);
 END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE GetProjectInfo(
+    IN project_id INT
+)
+BEGIN 
+    SELECT 
+        p.projName as project_name,
+        p.projectDescription as project_description,
+        p.budget as project_budget,
+        c.name as company_name,
+        c.company_description,
+        c.company_size 
+    FROM projects p
+    INNER JOIN companies c ON p.company = c.id
+    WHERE p.id = project_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE OR ALTER PROCEDURE GetActiveProjectsForUser(
+    IN user_id INT
+)
+BEGIN
+    SELECT 
+        p.id AS project_id,
+        p.projName AS project_name,
+        p.projectDescription AS project_description,
+        p.budget AS project_budget,
+        c.name AS company_name,
+        c.companyDescription AS company_description,
+        c.companySize AS company_size
+    FROM projects p
+    INNER JOIN companies c ON p.company = c.id
+    INNER JOIN user_projects up ON up.project_id = p.id
+    WHERE up.user_id = user_id
+      AND p.status = 'active'; -- Suponiendo que hay un campo `status` para identificar proyectos activos
+END$$
+
 DELIMITER ;
 
 

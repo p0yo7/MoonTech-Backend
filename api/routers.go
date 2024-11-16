@@ -54,7 +54,8 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.POST("/createTeam", CreateTeam)
 	// ADD COMMENT
 	// r.POST("/createComment", CreateComment)
-
+	// Create project's tasks
+	r.POST("/createTasks", CreateTasks)
 	// SEND DATA TO META SERVER
 	r.POST("/sendRequirements", SendRequirementsAI)
 	// manejar como webhooks
@@ -65,7 +66,7 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 
 	// APPROVE REQUIREMENT
 	r.PUT("/approveRequirement", ApproveRequirement)
-
+	r.PUT("/ProjectDescription/:id", )
 	// REJECT REQUIREMENT
 	// r.PUT("/rejectRequirement", RejecRequirement)
 
@@ -76,18 +77,16 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.GET("/getSchema", GetSchema)
 
 	r.GET("/getAITasks")
+
 	r.GET("/getTeamMembers")  //Para la parte de teams
-	r.GET("/getProjects/:id") //get active projects for user
-	r.GET("/Project/:id", GetProjectInfo)
-	// r.GET("/ProjectRequirements/:id", GetProjectRequirements)
+	// Get active projects for user 
+	r.GET("/ActiveProjects/:user_id", GetActiveProjectsForUser)
+	// Get a project's specific general information to use in AI
+	r.GET("/Project/:id", GetProjectGeneralInfo)
+	// Get a project's specific requirements as an array of objects
 	r.GET("/Project/:id/Requirements", GetProjectRequirements)
-	r.GET("/Project/:id/Planning", GetProjectPlanning)
-	// Agregar get project reqs
-	// Agregar get planeacion
-	// Agregar get estimacion
-	// Agregar get Generacion Propuesta
-	// Agregar get Validacion y Cierre
-	// Agregar get Entrega
+	// Get project's specific requirements
+	r.GET("/Project/:id/Tasks", GetProjectTasks)
 
 	// Rechazar requerimiento
 	// Modificar requerimiento
