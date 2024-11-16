@@ -54,6 +54,9 @@ type Companies struct {
 	CompanyName      string          `gorm:"column:name;size:100"`
 	RepresentativeID int             `gorm:"column:representativeId"`
 	BusinessTypeID   int             `gorm:"column:businessType"`
+	Country 		string          `gorm:"column:country;size:100"`
+	CompanySize	  int             `gorm:"column:company_size"`
+	CompanyDescription string `gorm:"company_description"`
 	representative   Representatives `gorm:"foreignKey:RepresentativeID;references:RepresentativeID"`
 	business_type    BusinessTypes   `gorm:"foreignKey:BusinessTypeID;references:BusinessTypeID"`
 }
@@ -99,6 +102,7 @@ type Projects struct {
 	OwnerID     int       `gorm:"column:owner"`
 	CompanyID   int       `gorm:"column:company"`
 	AreaID      int       `gorm:"column:area"`
+	ProjectDescription string    `gorm:"column:projectDescription;type:text"`
 	Budget      int       `gorm:"column:budget"`
 	start_date  time.Time `gorm:"column:startDate;type:date"`
 	Owner       Users     `gorm:"foreignKey:OwnerID;references:ID"`
@@ -178,19 +182,20 @@ func (Comments) TableName() string {
 type Tasks struct {
 	ID            int        `gorm:"column:id;primaryKey;autoIncrement"`
 	RequirementID int        `gorm:"column:requirement"`
-	TeamID        int        `gorm:"column:team"`
-	CreatedByID   int        `gorm:"column:createdBy"`
+	Team        int        `gorm:"column:team"`
+	CreatedBy   int        `gorm:"column:createdBy"`
 	Name          string     `gorm:"column:name;size:40"`
 	Description   string     `gorm:"column:description"`
 	Language      int        `gorm:"column:language"`
-	FrameworkID   int        `gorm:"column:framework"`
+	// Framework  int        `gorm:"column:framework"`
 	EstimatedTime int        `gorm:"column:estimated_time"`
 	EstimateCost  int        `gorm:"column:estimated_cost"`
 	Ajuste        float64    `gorm:"column:ajuste;type:decimal(10,2)"`
 	CreatedTime   time.Time  `gorm:"column:createdTime;type:timestamp;default:CURRENT_TIMESTAMP"` // Default a CURRENT_TIMESTAMP
-	Team          Teams      `gorm:"foreignKey:TeamID;references:ID"`
-	CreatedBy     Users      `gorm:"foreignKey:CreatedByID;references:ID"`
-	Framework     Frameworks `gorm:"foreignKey:FrameworkID;references:ID"`
+	Requirements          Requirements      `gorm:"foreignKey:RequirementID;references:ID"`
+	// Teams          Teams      `gorm:"foreignKey:TeamID;references:ID"`
+	// CreatedBy     Users      `gorm:"foreignKey:CreatedByID;references:ID"`
+	// Frameworks     Frameworks `gorm:"foreignKey:FrameworkID;references:ID"`
 }
 
 // Tasks representa la tabla de tareas

@@ -15,11 +15,11 @@ COPY . .
 
 # Asegurarse de que install_packages.sh tenga el formato correcto para Linux
 # Esto evitará problemas con los finales de línea en Windows
-RUN apt-get update && apt-get install -y dos2unix \
-    && dos2unix /app/install_packages.sh
+# RUN apt-get update && apt-get install -y dos2unix \
+#     && dos2unix /app/install_packages.sh
 
-# Ejecutar el script install_packages.sh
-RUN /bin/sh /app/install_packages.sh
+# # Ejecutar el script install_packages.sh
+# RUN /bin/sh /app/install_packages.sh
 
 # Compilar la aplicación
 RUN go build -o myapp .
