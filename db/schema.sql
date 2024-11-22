@@ -166,6 +166,14 @@ CREATE TABLE notifications (
     FOREIGN KEY (project) REFERENCES projects(id)
 );
 
+CREATE TABLE project_users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    user_id INT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- get Areas
 -- get Teams 
 -- get 
@@ -202,6 +210,7 @@ DELIMITER ;
 
 
 
+
 -- Obtener la informacion de un proyecto cuando se le da click por id
 -- Se necesitan: requerimientos, tareas, comments
 DELIMITER $$
@@ -211,7 +220,7 @@ CREATE PROCEDURE GetProjectRequirements(
 BEGIN 
     SELECT 
         r.id AS requirement_id,
-        r.requirement_description AS requirement_text,
+        r.requirement_description AS requirement_description,
         r.approved AS requirement_approved,
         r.timestamp AS requirement_timestamp
     FROM 
@@ -248,6 +257,7 @@ CREATE PROCEDURE GetProjectInfo(
 )
 BEGIN 
     SELECT 
+        p.id as project_id,
         p.projName as project_name,
         p.projectDescription as project_description,
         p.budget as project_budget,

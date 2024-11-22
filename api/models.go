@@ -223,9 +223,19 @@ type Notifications struct {
 	Status      int       `gorm:"column:status;"`
 	CreatedTime time.Time `gorm:"column:created_time"`
 	ProjectID   int       `gorm:"column:project"`
-	Project     Projects  `gorm:"foreignKEy:ProjectID;refereces:ID"`
+	Project     Projects  `gorm:"foreignKey:ProjectID;refereces:ID"`
 }
 
 func (Notifications) TableName() string {
 	return "notifications"
+}
+
+type ProjectUser struct {
+    ID        int      `gorm:"primaryKey"`
+    ProjectID int      `gorm:"column:project_id"`
+    UserID    int      `gorm:"column:user_id"`
+}
+
+func (ProjectUser) TableName() string {
+    return "project_users"
 }
