@@ -36,6 +36,8 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	// CREATE PROJECT
 	r.POST("/createProject", CreateProject)
 
+	// CREATE PROJECT_USERS
+	r.POST("/createProjectUsers", InsertUserToProject)
 	// CREATE REQUIREMENT
 	r.POST("/createRequirement", CreateRequirement)
 
@@ -75,10 +77,10 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 
 	// GETS
 	r.GET("/getSchema", GetSchema)
-
+	r.GET("/GetUsersForTeams/:team_name", GetUsersWithTeamByName)
 	r.GET("/getAITasks")
-
-	r.GET("/getTeamMembers")  //Para la parte de teams
+	// comercial, lider digital, legal, equipo digital, pm, finanzas, gdm
+	r.GET("/getTeams")  //Para la parte de teams
 	// Get active projects for user 
 	r.GET("/ActiveProjects/:user_id", GetActiveProjectsForUser)
 	// Get a project's specific general information to use in AI

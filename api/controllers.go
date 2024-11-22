@@ -273,13 +273,15 @@ func NotifyProjectTurn(users []Users) {
 }
 
 type ProjectInfo struct {
-	CompanyName        string `json:"company_name"`
-	CompanyDescription string `json:"company_description"`
-	CompanySize        int    `json:"company_size"`
-	ProjectName        string `json:"project_name"`
-	ProjectDescription string `json:"project_description"`
-	ProjectBudget      int    `json:"project_budget"`
+    ProjectID          int    `json:"project_id" gorm:"column:project_id"`
+    ProjectName        string `json:"project_name" gorm:"column:project_name"`
+    ProjectDescription string `json:"project_description" gorm:"column:project_description"`
+    ProjectBudget      int    `json:"project_budget" gorm:"column:project_budget"`
+    CompanyName        string `json:"company_name" gorm:"column:company_name"`
+    CompanyDescription string `json:"company_description" gorm:"column:company_description"`
+    CompanySize        int    `json:"company_size" gorm:"column:company_size"`
 }
+
 
 func GetProjectGeneralInfo(c *gin.Context) {
 	// Obtener el ID del proyecto y convertirlo a entero
@@ -306,11 +308,11 @@ func GetProjectGeneralInfo(c *gin.Context) {
 }
 
 type RequirementResponse struct {
-	ID                   int       `json:"id"`                    // ID del requerimiento
-	ProjectID            int       `json:"project_id"`            // ID del proyecto al que pertenece
-	RequirementText      string    `json:"requirement_text"`      // Descripción del requerimiento
-	RequirementApproved  bool      `json:"requirement_approved"`  // Fecha de creación del requerimiento
-	RequirementTimestamp time.Time `json:"requirement_timestamp"` // Fecha de actualización del requerimiento
+	RequirementID            int       `json:"requirement_id"`            // ID del proyecto al que pertenece
+	RequirementDescription   string    `json:"requirement_description"`   // Descripción del requerimiento
+	RequirementApproved      bool      `json:"requirement_approved"`      // Estado de aprobación del requerimiento
+	RequirementTimeStamp	 time.Time `json:"requirement_timestamp"`     // Fecha y hora de creación del requerimiento
+
 }
 
 func GetProjectRequirements(c *gin.Context) {
@@ -484,7 +486,7 @@ func UpdateProjectDescription(c *gin.Context) {
 }
 // ProjectResponse estructura para mapear los resultados del procedimiento almacenado
 type ProjectResponse struct {
-	ProjectID          int    `json:"project_id"`
+	ProjectID 		int    `json:"project_id"`
 	ProjectName        string `json:"project_name"`
 	ProjectDescription string `json:"project_description"`
 	ProjectBudget      int    `json:"project_budget"`
@@ -518,4 +520,104 @@ func GetActiveProjectsForUser(c *gin.Context) {
 
 	// Retornar la respuesta en formato JSON
 	c.JSON(http.StatusOK, projects)
+}
+
+// GetUsersWithTeamByName obtiene los usuarios que pertenecen a un equipo especificado por el nombre
+func GetUsersWithTeamByName(c *gin.Context) {
+    // Validar los encabezados y obtener los claims
+    _, err := ValidateHeaders(c)
+    if err != nil {
+        // Verificar si el error es de token expirado
+        if errors.Is(err, errors.New("Token expirado")) {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+        } else {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        }
+        return
+    }
+
+    // Obtener el nombre del equipo desde los parámetros de la URL
+    teamName := c.Param("team_name")
+
+    // Crear un slice para almacenar los resultados
+    var usersWithTeams []struct {
+        ID       int   `json:"id"`
+        Username string `json:"username"`
+        TeamName string `json:"team_name"`
+    }
+
+    // Ejecutar la consulta SQL para obtener los usuarios y sus equipos filtrando por el nombre del equipo
+    result := DB.Raw(`
+        SELECT u.id, u.username, t.team_name
+        FROM users u
+        INNER JOIN teams t ON u.team = t.id
+        WHERE t.team_name = ?
+    `, teamName).Scan(&usersWithTeams)
+
+    // Verificar si hubo errores al ejecutar la consulta
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching users with teams"})
+        return
+    }
+
+    // Retornar la respuesta en formato JSON
+    c.JSON(http.StatusOK, usersWithTeams)
+}
+
+func InsertUserToProject(c *gin.Context) {
+    // Validar headers y obtener claims
+    _, err := ValidateHeaders(c)
+    if err != nil {
+        // Verificar si el error es de token expirado
+        if errors.Is(err, errors.New("Token expirado")) {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+        } else {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        }
+        return
+    }
+
+    // Crear una instancia del modelo ProjectUser
+    var projectUser ProjectUser
+
+    // Validar y enlazar datos JSON al modelo
+    if err := c.ShouldBindJSON(&projectUser); err != nil {
+        fmt.Println("Error al analizar JSON:", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+        return
+    }
+
+    // Validar si el usuario y el proyecto existen antes de intentar insertarlos (opcional)
+    var userExists, projectExists bool
+
+    if err := DB.Model(&Users{}).
+        Select("count(*) > 0").
+        Where("id = ?", projectUser.UserID).
+        Find(&userExists).Error; err != nil || !userExists {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        fmt.Println("Error validando usuario:", err)
+        return
+    }
+
+    if err := DB.Model(&Projects{}).
+        Select("count(*) > 0").
+        Where("id = ?", projectUser.ProjectID).
+        Find(&projectExists).Error; err != nil || !projectExists {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+        fmt.Println("Error validando proyecto:", err)
+        return
+    }
+
+    // Intentar crear el registro en la base de datos
+    if err := DB.Create(&projectUser).Error; err != nil {
+        fmt.Println("Error al insertar usuario en el proyecto:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user to project"})
+        return
+    }
+
+    // Responder con éxito
+    c.JSON(http.StatusOK, gin.H{
+        "message": "User successfully added to project",
+        "project_user": projectUser,
+    })
 }
