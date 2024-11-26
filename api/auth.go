@@ -142,6 +142,7 @@ func CreateUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		fmt.Println(err)
+		fmt.Println(err)
 		return
 	}
 

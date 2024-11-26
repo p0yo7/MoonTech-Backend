@@ -415,7 +415,7 @@ func CreateTasks(c *gin.Context) {
 	}
 
 	var task Tasks
-
+    
 	// Validar y enlazar datos JSON
 	if err := c.ShouldBindJSON(&task); err != nil {
 		fmt.Println("Error al analizar JSON:", err)
