@@ -60,15 +60,15 @@ func SetupRouter(r *gin.Engine) *gin.Engine {
 	r.POST("/createTasks", CreateTasks)
 	// SEND DATA TO META SERVER
 	r.POST("/sendRequirements", SendRequirementsAI)
-	// manejar como webhooks
-	// mandar la informacion del usuario
-	// mandar informacion como requerimientos e info de un proyecto
-
+	r.POST("/Project/Requirements/Generate", GenerateAndCreateProjectRequirements)
+	
+	r.POST("/Project/Tasks/Generate", GenerateAndCreateTasks)
+	
 	// PUT
 
 	// APPROVE REQUIREMENT
 	r.PUT("/approveRequirement", ApproveRequirement)
-	r.PUT("/ProjectDescription/:id", )
+	r.PUT("/ProjectDescription/:id", UpdateProjectDescription)
 	// REJECT REQUIREMENT
 	// r.PUT("/rejectRequirement", RejecRequirement)
 

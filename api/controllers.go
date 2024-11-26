@@ -7,6 +7,11 @@ import (
 	"time"
 	"strconv"
 	"github.com/gin-gonic/gin"
+	"encoding/json"
+	"bytes"
+	"os"
+	"io"
+	"strings"
 )
 
 func GetSchema(c *gin.Context) {
@@ -68,6 +73,14 @@ func CreateProject(c *gin.Context) {
 
 	// Asignar el ID de usuario del JWT al campo Owner del proyecto
 	proj.Owner.ID = int(claims.UserID)
+	proj.Status = 1
+	StartDate := time.Now().Format("02-01-2006")
+	parsedTime, err := time.Parse("02-01-2006", StartDate)
+	if err != nil {
+    	c.JSON(http.StatusBadRequest, gin.H{"error": "Date parsing error"})
+    	return
+	}
+	proj.StartDate = parsedTime
 
 	// Guardar el proyecto en la base de datos
 	result := DB.Create(&proj)
@@ -79,6 +92,8 @@ func CreateProject(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Project created successfully", "id": proj.ID})
 }
+
+
 
 func CreateRequirement(c *gin.Context) {
 	// Validar headers y obtener claims
@@ -351,6 +366,7 @@ type TaskResponse struct {
 	TaskTitle         string `json:"task_title"`          // Nombre de la tarea
 	TaskDescription   string `json:"task_description"`    // Descripción de la tarea
 	TaskEstimatedTime int    `json:"task_estimated_time"` // Tiempo estimado para la tarea (en horas)
+    TaskEstimatedCost int    `json:"task_estimated_cost"` // Costo estimado para la tarea
 }
 
 func GetProjectTasks(c *gin.Context) {
@@ -384,6 +400,7 @@ func GetProjectTasks(c *gin.Context) {
 	// Retornar la respuesta en formato JSON
 	c.JSON(http.StatusOK, tasks)
 }
+
 func CreateTasks(c *gin.Context) {
 	// Validar headers y obtener claims
 	_, err := ValidateHeaders(c)
@@ -486,8 +503,8 @@ func UpdateProjectDescription(c *gin.Context) {
 }
 // ProjectResponse estructura para mapear los resultados del procedimiento almacenado
 type ProjectResponse struct {
-	ProjectID 		int    `json:"project_id"`
-	ProjectName        string `json:"project_name"`
+	ProjectID 		int    `json:"id"`
+	ProjectName        string `json:"projName"`
 	ProjectDescription string `json:"project_description"`
 	ProjectBudget      int    `json:"project_budget"`
 	CompanyName        string `json:"company_name"`
@@ -620,4 +637,396 @@ func InsertUserToProject(c *gin.Context) {
         "message": "User successfully added to project",
         "project_user": projectUser,
     })
+}
+
+
+// RequestBody estructura para el body de la petición
+type GenerateRequirementsRequest struct {
+    ProjectID int `json:"project_id" binding:"required"`
+}
+
+// OpenAIRequest estructura para la petición a OpenAI
+type OpenAIRequest struct {
+    Model       string    `json:"model"`
+    Messages    []Message `json:"messages"`
+    Temperature float64   `json:"temperature"`
+}
+
+// Message estructura para los mensajes de OpenAI
+type Message struct {
+    Role    string `json:"role"`
+    Content string `json:"content"`
+}
+
+// OpenAIResponse estructura para la respuesta de OpenAI
+type OpenAIResponse struct {
+    ID      string `json:"id"`
+    Object  string `json:"object"`
+    Created int    `json:"created"`
+    Model   string `json:"model"`
+    Choices []struct {
+        Index   int `json:"index"`
+        Message struct {
+            Role    string `json:"role"`
+            Content string `json:"content"`
+        } `json:"message"`
+        FinishReason string `json:"finish_reason"`
+    } `json:"choices"`
+}
+
+
+func GenerateAndCreateProjectRequirements(c *gin.Context) {
+    // Validar headers y obtener claims
+    claims, err := ValidateHeaders(c)
+    if err != nil {
+        if errors.Is(err, errors.New("Token expirado")) {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+        } else {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+        }
+        return
+    }
+    // Obtener project_id del body
+    var reqBody GenerateRequirementsRequest
+    if err := c.ShouldBindJSON(&reqBody); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
+
+    // Obtener información del proyecto usando el stored procedure
+    var projectInfo ProjectInfo
+    result := DB.Raw("CALL GetProjectInfo(?)", reqBody.ProjectID).Scan(&projectInfo)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project information"})
+        fmt.Println(result.Error)
+        return
+    }
+
+    // Verificar que el proyecto existe
+    if projectInfo.ProjectID == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+        return
+    }
+
+    // Preparar el prompt para OpenAI
+    prompt := fmt.Sprintf(
+        "Basándote en la siguiente información del proyecto, genera una lista de requerimientos técnicos y funcionales.\n"+
+            "Genera cada requerimiento en una línea separada, sin numeración ni viñetas.\n"+
+            "Cada requerimiento debe ser una descripción clara y concisa.\n\n"+
+            "Información del proyecto:\n"+
+            "Nombre del Proyecto: %s\n"+
+            "Descripción: %s\n"+
+            "Presupuesto: %f\n"+
+            "Empresa: %s\n"+
+            "Descripción de la empresa: %s\n"+
+            "Tamaño de la empresa: %d empleados\n\n"+
+            "Por favor, genera los requerimientos considerando el tamaño de la empresa y el presupuesto disponible.",
+        projectInfo.ProjectName,
+        projectInfo.ProjectDescription,
+        projectInfo.ProjectBudget,
+        projectInfo.CompanyName,
+        projectInfo.CompanyDescription,
+        projectInfo.CompanySize,
+    )
+
+    // Preparar la petición a OpenAI
+    openAIReq := OpenAIRequest{
+        Model: "gpt-3.5-turbo",
+        Messages: []Message{
+            {
+                Role:    "system",
+                Content: "Eres un experto analista de sistemas que ayuda a definir requerimientos de proyectos de software. Genera requerimientos concisos y bien estructurados, uno por línea.",
+            },
+            {
+                Role:    "user",
+                Content: prompt,
+            },
+        },
+        Temperature: 0.7,
+    }
+
+    jsonData, err := json.Marshal(openAIReq)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to prepare OpenAI request"})
+        return
+    }
+
+    // Realizar la petición a OpenAI
+    req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonData))
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+        return
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": fmt.Sprintf("Failed to connect to OpenAI: %v", err),
+        })
+        return
+    }
+    defer resp.Body.Close()
+
+    // Verificar el código de estado de la respuesta
+    if resp.StatusCode != http.StatusOK {
+        bodyBytes, _ := io.ReadAll(resp.Body)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": fmt.Sprintf("OpenAI API returned status %d", resp.StatusCode),
+            "details": string(bodyBytes),
+        })
+        return
+    }
+
+    // Procesar la respuesta usando la estructura definida
+    var openAIResponse OpenAIResponse
+    if err := json.NewDecoder(resp.Body).Decode(&openAIResponse); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": fmt.Sprintf("Failed to parse OpenAI response: %v", err),
+        })
+        return
+    }
+
+    // Verificar que hay choices disponibles
+    if len(openAIResponse.Choices) == 0 {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "No response content from OpenAI"})
+        return
+    }
+
+    // Obtener el contenido de la respuesta
+    content := openAIResponse.Choices[0].Message.Content
+
+    // Verificar que el contenido no está vacío
+    if content == "" {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Empty response content from OpenAI"})
+        return
+    }
+
+    // Procesar los requerimientos
+    requirementsList := strings.Split(content, "\n")
+    var createdReqs []Requirements
+
+    for _, reqText := range requirementsList {
+        reqText = strings.TrimSpace(reqText)
+        if reqText == "" {
+            continue
+        }
+
+        // Crear el requerimiento
+        req := Requirements{
+            ProjectID:              reqBody.ProjectID,
+            OwnerID:               int(claims.UserID),
+            RequirementDescription: reqText,
+            timestamp:             time.Now(),
+            approved:              false,
+			ApproverID:            int(claims.UserID),
+        }
+
+        // Insertar en la base de datos
+        result := DB.Create(&req)
+        if result.Error != nil {
+            fmt.Printf("Error creating requirement: %v\n", result.Error)
+            continue
+        }
+
+        createdReqs = append(createdReqs, req)
+    }
+
+    // Retornar respuesta
+    if len(createdReqs) > 0 {
+        c.JSON(http.StatusOK, gin.H{
+            "message": fmt.Sprintf("Successfully created %d requirements", len(createdReqs)),
+            "requirements": createdReqs,
+        })
+    } else {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to create any requirements",
+        })
+    }
+}
+// RequestBody estructura para el body de la petición
+type GenerateTasksRequest struct {
+    ProjectID int `json:"project_id" binding:"required"`
+}
+
+func GenerateAndCreateTasks(c *gin.Context) {
+    // Validar headers y obtener claims
+    claims, err := ValidateHeaders(c)
+    if err != nil {
+        if errors.Is(err, errors.New("Token expirado")) {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expirado"})
+        } else {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+        }
+        return
+    }
+
+    // Obtener project_id del body
+    var reqBody GenerateTasksRequest
+    if err := c.ShouldBindJSON(&reqBody); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
+
+    // Obtener todos los requerimientos del proyecto
+    var requirements []RequirementResponse
+    result := DB.Raw("CALL GetProjectRequirements(?)", reqBody.ProjectID).Scan(&requirements)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching project requirements"})
+        return
+    }
+
+    if len(requirements) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"error": "No requirements found for this project"})
+        return
+    }
+
+    var allCreatedTasks []Tasks
+    var failedRequirements []int
+
+    // Iterar sobre cada requerimiento
+    for _, requirement := range requirements {
+        // Preparar el prompt para OpenAI
+        prompt := fmt.Sprintf(
+            "Basándote en el siguiente requerimiento, genera una lista de tareas técnicas necesarias.\n"+
+                "Para cada tarea, especifica:\n"+
+                "- Nombre de la tarea\n"+
+                "- Descripción detallada\n"+
+                "- Tiempo estimado en horas\n"+
+                "- Costo estimado (basado en $50/hora)\n\n"+
+                "Requerimiento: %s\n\n"+
+                `Responde en formato JSON como este ejemplo:
+                [
+                    {
+                        "name": "Nombre de la tarea",
+                        "description": "Descripción detallada",
+                        "estimatedTime": 8,
+                        "estimatedCost": 400
+                    }
+                ]`,
+            requirement.RequirementDescription,
+        )
+
+        // Preparar la petición a OpenAI
+        openAIReq := OpenAIRequest{
+            Model: "gpt-3.5-turbo",
+            Messages: []Message{
+                {
+                    Role:    "system",
+                    Content: "Eres un experto técnico que ayuda a desglosar requerimientos en tareas técnicas específicas y estimables.",
+                },
+                {
+                    Role:    "user",
+                    Content: prompt,
+                },
+            },
+            Temperature: 0.7,
+        }
+
+        jsonData, err := json.Marshal(openAIReq)
+        if err != nil {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            continue
+        }
+
+        // Realizar la petición a OpenAI
+        req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonData))
+        if err != nil {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            continue
+        }
+
+        req.Header.Set("Content-Type", "application/json")
+        req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+
+        client := &http.Client{}
+        resp, err := client.Do(req)
+        if err != nil {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            continue
+        }
+
+        if resp.StatusCode != http.StatusOK {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            resp.Body.Close()
+            continue
+        }
+
+        // Procesar la respuesta de OpenAI
+        var openAIResponse OpenAIResponse
+        if err := json.NewDecoder(resp.Body).Decode(&openAIResponse); err != nil {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            resp.Body.Close()
+            continue
+        }
+        resp.Body.Close()
+
+        // Verificar que hay contenido en la respuesta
+        if len(openAIResponse.Choices) == 0 || openAIResponse.Choices[0].Message.Content == "" {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            continue
+        }
+
+        // Parsear el JSON de las tareas generadas
+        type GeneratedTask struct {
+            Name          string  `json:"name"`
+            Description   string  `json:"description"`
+            EstimatedTime int     `json:"estimatedTime"`
+            EstimatedCost float64 `json:"estimatedCost"`
+        }
+
+        var generatedTasks []GeneratedTask
+        if err := json.Unmarshal([]byte(openAIResponse.Choices[0].Message.Content), &generatedTasks); err != nil {
+            failedRequirements = append(failedRequirements, requirement.RequirementID)
+            continue
+        }
+
+        // Crear las tareas en la base de datos
+        for _, genTask := range generatedTasks {
+            task := Tasks{
+                RequirementID:  requirement.RequirementID,
+                Team:          1, // Valor por defecto
+                CreatedBy:     int(claims.UserID),
+                Name:          genTask.Name,
+                Description:   genTask.Description,
+                Language:      1, // Valor por defecto
+                EstimatedTime: genTask.EstimatedTime,
+                EstimatedCost: int(genTask.EstimatedCost),
+                Ajuste:        0,
+            }
+
+            result := DB.Create(&task)
+            if result.Error != nil {
+                fmt.Printf("Error creating task for requirement %d: %v\n", requirement.RequirementID, result.Error)
+                continue
+            }
+
+            allCreatedTasks = append(allCreatedTasks, task)
+        }
+    }
+
+    // Preparar la respuesta
+    response := gin.H{
+        "message":     fmt.Sprintf("Successfully created %d tasks", len(allCreatedTasks)),
+        "tasks":       allCreatedTasks,
+        "total_tasks": len(allCreatedTasks),
+    }
+
+    if len(failedRequirements) > 0 {
+        response["failed_requirements"] = failedRequirements
+        response["warning"] = "Some requirements failed to generate tasks"
+    }
+
+    // Retornar respuesta
+    if len(allCreatedTasks) > 0 {
+        c.JSON(http.StatusOK, response)
+    } else {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error":               "Failed to create any tasks",
+            "failed_requirements": failedRequirements,
+        })
+    }
 }

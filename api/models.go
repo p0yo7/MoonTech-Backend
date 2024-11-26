@@ -103,8 +103,9 @@ type Projects struct {
 	CompanyID   int       `gorm:"column:company"`
 	AreaID      int       `gorm:"column:area"`
 	ProjectDescription string    `gorm:"column:projectDescription;type:text"`
+	Status 	int    `gorm:"column:status;size:50"`
 	Budget      int       `gorm:"column:budget"`
-	start_date  time.Time `gorm:"column:startDate;type:date"`
+	StartDate  time.Time `gorm:"column:startDate;type:date"`
 	Owner       Users     `gorm:"foreignKey:OwnerID;references:ID"`
 	Company     Companies `gorm:"foreignKey:CompanyID;references:CompanyID"`
 	Area        Areas     `gorm:"foreignKey:AreaID;references:AreaID"`
@@ -189,7 +190,7 @@ type Tasks struct {
 	Language      int        `gorm:"column:language"`
 	// Framework  int        `gorm:"column:framework"`
 	EstimatedTime int        `gorm:"column:estimated_time"`
-	EstimateCost  int        `gorm:"column:estimated_cost"`
+	EstimatedCost  int        `gorm:"column:estimated_cost"`
 	Ajuste        float64    `gorm:"column:ajuste;type:decimal(10,2)"`
 	CreatedTime   time.Time  `gorm:"column:createdTime;type:timestamp;default:CURRENT_TIMESTAMP"` // Default a CURRENT_TIMESTAMP
 	Requirements          Requirements      `gorm:"foreignKey:RequirementID;references:ID"`

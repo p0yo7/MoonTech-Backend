@@ -13,8 +13,19 @@ CREATE TABLE frameworks (
 
 CREATE TABLE teams ( 
     id INT AUTO_INCREMENT PRIMARY KEY,
-    team_name varchar(100)
+    team_name VARCHAR(100)
 );
+
+INSERT INTO teams (team_name) VALUES 
+('Perritos Dormilones'),
+('Comercial'),
+('Lider Digital'),
+('PM'),
+('GDM'),
+('Equipo Digital'),
+('Legal'),
+('Finanzas')
+;
 
 -- Tabla de tipos de negocio
 CREATE TABLE businessTypes (
@@ -22,6 +33,13 @@ CREATE TABLE businessTypes (
     name VARCHAR(100),
     color VARCHAR(20)
 );
+
+INSERT INTO businessTypes (name, color) VALUES 
+('Tecnología', '#FF5733'),
+('Salud', '#33FF57'),
+('Finanzas', '#3357FF'),
+('Educación', '#FF33A1'),
+('Comercio', '#33FFF5');
 
 -- Tabla de representantes
 CREATE TABLE representatives (
@@ -70,6 +88,36 @@ CREATE TABLE users (
     FOREIGN KEY (team) REFERENCES teams(id),
     FOREIGN KEY (leaderId) REFERENCES users(id) -- Referencia a sí mismo
 );
+
+INSERT INTO users (username, first_name, lastname, work_email, work_phone, password, team, leaderId, position, role) VALUES
+-- Comercial
+('jdoe', 'John', 'Doe', 'john.doe@company.com', '1234567890', '$2y$10$dummyhash1', 1, NULL, 'Sales Executive', 'User'),
+('mrodriguez', 'Maria', 'Rodriguez', 'maria.rodriguez@company.com', '2345678901', '$2y$10$dummyhash2', 1, NULL, 'Sales Manager', 'Admin'),
+
+-- Líder Digital
+('adavis', 'Alex', 'Davis', 'alex.davis@company.com', '3456789012', '$2y$10$dummyhash3', 2, NULL, 'Digital Lead', 'Admin'),
+('jmartinez', 'Jose', 'Martinez', 'jose.martinez@company.com', '4567890123', '$2y$10$dummyhash4', 2, 1, 'Digital Specialist', 'User'),
+
+-- PM (Project Managers)
+('smiller', 'Sarah', 'Miller', 'sarah.miller@company.com', '5678901234', '$2y$10$dummyhash5', 3, NULL, 'Project Manager', 'Admin'),
+('kwilson', 'Kevin', 'Wilson', 'kevin.wilson@company.com', '6789012345', '$2y$10$dummyhash6', 3, 3, 'Project Coordinator', 'User'),
+
+-- GDM (Gestión de Desarrollo)
+('lgarcia', 'Laura', 'Garcia', 'laura.garcia@company.com', '7890123456', '$2y$10$dummyhash7', 4, NULL, 'Development Manager', 'Admin'),
+('rthomas', 'Robert', 'Thomas', 'robert.thomas@company.com', '8901234567', '$2y$10$dummyhash8', 4, 4, 'Development Engineer', 'User'),
+
+-- Equipo Digital
+('cwalker', 'Chris', 'Walker', 'chris.walker@company.com', '9012345678', '$2y$10$dummyhash9', 5, NULL, 'Digital Coordinator', 'Admin'),
+('pbrown', 'Patricia', 'Brown', 'patricia.brown@company.com', '0123456789', '$2y$10$dummyhash10', 5, 5, 'Digital Analyst', 'User'),
+
+-- Legal
+('jlopez', 'Juan', 'Lopez', 'juan.lopez@company.com', '1123456789', '$2y$10$dummyhash11', 6, NULL, 'Legal Advisor', 'Admin'),
+('eclark', 'Emma', 'Clark', 'emma.clark@company.com', '1223456789', '$2y$10$dummyhash12', 6, 6, 'Paralegal', 'User'),
+
+-- Finanzas
+('dlee', 'David', 'Lee', 'david.lee@company.com', '1323456789', '$2y$10$dummyhash13', 7, NULL, 'Finance Manager', 'Admin'),
+('hharris', 'Hannah', 'Harris', 'hannah.harris@company.com', '1423456789', '$2y$10$dummyhash14', 7, 7, 'Accountant', 'User');
+
 
 -- Tabla de proyectos
 CREATE TABLE projects (
@@ -190,9 +238,18 @@ DELIMITER $$
 CREATE PROCEDURE GetActiveProjectsForUser(
     IN userId int)
 BEGIN
-    select * from projects p
-    inner join users u on u.id = p.owner
-    where p.status = 1 and p.owner = userId;
+    SELECT 
+        p.id AS ProjectID,
+        p.projName AS ProjectName,
+        p.projectDescription AS ProjectDescription,
+        p.budget AS ProjectBudget,
+        c.name AS CompanyName,
+        c.company_description AS CompanyDescription,
+        c.company_size AS CompanySize
+    FROM projects p
+    INNER JOIN users u ON u.id = p.owner
+    INNER JOIN companies c ON c.id = p.id
+    WHERE p.status = 1 AND p.owner = userId;
 END$$
 DELIMITER ;
 
@@ -242,7 +299,8 @@ BEGIN
         t.id AS task_id,
         t.name AS task_title,
         t.description AS task_description,
-        t.estimated_time AS task_estimated_time
+        t.estimated_time AS task_estimated_time,
+        t.estimated_cost AS task_estimated_cost
     FROM 
         tasks t
     WHERE 
@@ -272,7 +330,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE OR ALTER PROCEDURE GetActiveProjectsForUser(
+CREATE PROCEDURE GetActiveProjectsForUser(
     IN user_id INT
 )
 BEGIN
@@ -292,6 +350,12 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- Insertar business types
+-- Insertar Team
+-- Insertar Areas
+-- Insertar Frameworks
+
 
 
 -- get ActiveProjectsForUser
