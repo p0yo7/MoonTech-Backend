@@ -31,7 +31,7 @@ Sigue estos pasos para instalar y ejecutar el prototipo en tu entorno local:
 
 1. Clona este repositorio:
    ```bash
-   git clone https://github.com/p0yo7/MoonTech.git
+   git clone https://github.com/p0yo7/MoonTech-Backend.git
 
 2. Navega al directorio del proyecto de la main branch:
 cd MoonTech
