@@ -21,9 +21,9 @@ El prototipo de software de **MoonTech** es una herramienta diseñada para facil
 
 ## Requisitos del Sistema
 
-- **Lenguaje de Programación:** [Especificar el lenguaje principal utilizado, por ejemplo, Python, JavaScript, etc.]
-- **Dependencias:** [Lista de dependencias necesarias, por ejemplo, Node.js, Django, etc.]
-- **Plataforma:** [Especificar el sistema operativo compatible, por ejemplo, Windows, macOS, Linux, etc.]
+- **Lenguaje de Programación:** Go
+- **Dependencias:** Node.js, React
+- **Plataforma:** Web
 
 ## Instalación
 
@@ -33,22 +33,20 @@ Sigue estos pasos para instalar y ejecutar el prototipo en tu entorno local:
    ```bash
    git clone https://github.com/p0yo7/MoonTech.git
 
-2. Navega al directorio del proyecto:
+2. Navega al directorio del proyecto de la main branch:
 cd MoonTech
 
-3. Instala las dependencias:
-[Especificar el comando, por ejemplo, npm install, pip install -r requirements.txt, etc.]
-
-4. Ejecuta el proyecto:
-[Especificar el comando para iniciar la aplicación, por ejemplo, npm start, python manage.py runserver, etc.]
-
+3. Ejecuta el proyecto:
+```bash
+docker-compose up --build -d
+```
 
 ## Uso
 
 Una vez que el proyecto esté en funcionamiento, puedes acceder a la interfaz principal a través de tu navegador web. Desde allí, podrás:
 
 - **Crear y gestionar proyectos:** Permite la organización de proyectos en diferentes categorías y facilita la asignación de tareas a los miembros del equipo.
-- **Asignar tareas y seguir el progreso:** Monitorea el estado de las tareas asignadas y realiza un seguimiento del progreso general del proyecto.
+- **Crear tareas y seguir el progreso:** Monitorea el estado de las tareas asignadas y realiza un seguimiento del progreso general del proyecto.
 - **Generar informes y propuestas para clientes:** Automatiza la creación de documentos que resumen el avance del proyecto y generan propuestas personalizadas para los clientes.
 
 ## Contribución
