@@ -1,3 +1,9 @@
+The business logic with the operation and the user interface were separated into two repositories, so first you have to install both and install docker desktop (https://www.docker.com/products/docker-desktop/) to monitor their correct operation.
+
+Important Links
+Administration Plan https://app.plane.so/moontech/projects/9b58f816-09e2-4b1c-a17c-f7ab9177761f/modules/
+Frontend for this Project https://github.com/p0yo7/MoonTech-frontend/tree/finalSprint
+
 # MoonTech Prototipo de Software
 
 **Nos desvelamos para ti.**
@@ -70,8 +76,6 @@ Para cualquier pregunta o sugerencia, no dudes en ponerte en contacto con nosotr
 
 - **Oscar (Sylvia Aurora) Cortes Rojas** - A00825972 - [Correo Electrónico](mailto:correo@example.com)
 - **Luis Fernando Manzanares** - A01283738 - [Correo Electrónico](mailto:correo@example.com)
-- **Mario Alberto González Méndez** - A00832313 - [Correo Electrónico](mailto:correo@example.com)
-- **Andrea Galindo Yáñez** - A01368483 - [Correo Electrónico](mailto:correo@example.com)
 - **Yudith Korina Hernández Palacios** - A00834231 - [Correo Electrónico](mailto:correo@example.com)
 
 
